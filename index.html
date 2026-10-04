@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <script>
+      // Compatibility: Support scripts that assign window.fetch in restricted iframe environments
+      (function() {
+        try {
+          var _currentFetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return _currentFetch; },
+            set: function(fn) { _currentFetch = fn; },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {}
+      })();
+
+      (function() {
+        try {
+          var t = localStorage.getItem('rfh_theme');
+          if (!t) {
+            t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.className = t;
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+
+      // Safe cleanup: Ensure any legacy advertising Service Workers and old ad caches are completely unregistered
+      (function() {
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for (var i = 0; i < registrations.length; i++) {
+                registrations[i].unregister();
+              }
+            }).catch(function() {});
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              for (var i = 0; i < keys.length; i++) {
+                caches.delete(keys[i]);
+              }
+            }).catch(function() {});
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <!-- Google AdSense Official Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8650082341590465"
+      crossorigin="anonymous"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7L132HKM3C"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-7L132HKM3C');
+    </script>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://knrxnoxmboslqkypxbkt.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://knrxnoxmboslqkypxbkt.supabase.co" />
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <meta name="google-site-verification" content="5QQxriaF-FxRyBatpUV6cll60J_fZ84CEnpLmBbyC-k" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f97316" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Renu Agarwal" />
+
+    <title>Renu Fashion Hub | Sarees, Kurtis, Jewellery & Style Guides by Renu Agarwal</title>
+    <meta name="description" content="Renu Fashion Hub by Renu Agarwal — women's fashion inspiration, saree & kurti styling, jewellery picks, outfit ideas and honest shopping guides for Indian women." />
+    <meta name="keywords" content="Renu Fashion Hub, Renu Agarwal, sarees, kurtis, lehengas, jewellery, Indian women fashion, outfit ideas, styling guides" />
+    <link rel="canonical" href="https://www.renufashionhub.in/" />
+
+    <meta property="og:site_name" content="Renu Fashion Hub" />
+    <meta property="og:title" content="Renu Fashion Hub | Sarees, Kurtis, Jewellery & Style Guides" />
+    <meta property="og:description" content="Women's fashion inspiration, sarees, kurtis, jewellery, outfit ideas, shopping guides and style tips curated by Renu Agarwal." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.renufashionhub.in/" />
+    <meta property="og:image" content="https://www.renufashionhub.in/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_IN" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Renu Fashion Hub | Sarees, Kurtis, Jewellery & Style Guides" />
+    <meta name="twitter:description" content="Women's fashion inspiration, sarees, kurtis, jewellery, outfit ideas, shopping guides and style tips curated by Renu Agarwal." />
+    <meta name="twitter:image" content="https://www.renufashionhub.in/og-image.jpg" />
+
+    <link rel="shortcut icon" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Renu Fashion Hub",
+      "url": "https://www.renufashionhub.in/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.renufashionhub.in/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Renu Fashion Hub",
+      "url": "https://www.renufashionhub.in/",
+      "logo": "https://www.renufashionhub.in/favicon.svg",
+      "founder": {
+        "@type": "Person",
+        "name": "Renu Agarwal",
+        "sameAs": [
+          "https://www.instagram.com/renu_agarwal_vlogs",
+          "https://youtube.com/@renuagarwalvlogs",
+          "https://www.facebook.com/share/17YfgJkGda/"
+        ]
+      },
+      "sameAs": [
+        "https://www.instagram.com/renu_agarwal_vlogs",
+        "https://youtube.com/@renuagarwalvlogs",
+        "https://www.facebook.com/share/17YfgJkGda/"
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <h1>Renu Fashion Hub — Women's Fashion, Sarees, Kurtis, Jewellery & Style Guides</h1>
+      <p>Renu Fashion Hub, curated by Renu Agarwal, is a destination for Indian women's fashion inspiration: saree styling, kurti trends, lehenga guides, jewellery picks, western outfit ideas, seasonal shopping guides and honest beauty tips.</p>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About Renu Agarwal</a></li>
+        <li><a href="/blog">Fashion Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
+        <li><a href="/terms-of-service">Terms of Service</a></li>
+        <li><a href="/disclaimer">Disclaimer</a></li>
+        <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
+        <li><a href="/cookie-policy">Cookie Policy</a></li>
+      </ul>
+      <p>Please enable JavaScript to browse the full catalog, blog and shopping experience.</p>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

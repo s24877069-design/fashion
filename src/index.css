@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --rf-bg: #FAF8F5;
+  --rf-surface: #FFFFFF;
+  --rf-elevated: #F4F1EA;
+  --rf-text: #1C1917;
+  --rf-muted: #78716C;
+  --rf-border: rgba(28, 25, 23, 0.08);
+  --rf-accent: #9E1F3B;
+  --rf-accent-hover: #7F172E;
+}
+
+.dark {
+  --rf-bg: #141211;
+  --rf-surface: #1C1A19;
+  --rf-elevated: #242220;
+  --rf-text: #F7F5F2;
+  --rf-muted: #A8A29E;
+  --rf-border: rgba(255, 255, 255, 0.09);
+  --rf-accent: #E05370;
+  --rf-accent-hover: #F26F8B;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body { 
+    background-color: var(--rf-bg); 
+    color: var(--rf-text);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Refined typography defaults */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Luxury hairline borders and elevated cards */
+.rf-border {
+  border-color: var(--rf-border);
+}
+
+.rf-surface {
+  background-color: var(--rf-surface);
+}
+
+.rf-elevated {
+  background-color: var(--rf-elevated);
+}
+
+/* Performance: skip layout/paint for off-screen cards in product & post grids */
+.perf-card { 
+  content-visibility: auto; 
+  contain-intrinsic-size: 380px; 
+}
+
+/* Subtle luxury micro-interactions */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08);
+}
+
+.gold-grain-theme {
+  background-color: var(--rf-bg);
+}
+.gold-grain-dark {
+  background-color: #141211 !important;
+}
+.gold-grain-light {
+  background-color: #FAF8F5 !important;
+}
+.gpu-accelerated { will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; perspective: 1000px; }
+
+/* Blog content */
+.blog-content { line-height: 1.75; }
+.blog-content h1, .blog-content h2, .blog-content h3, .blog-content h4, .blog-content h5, .blog-content h6 { font-weight: 800; line-height: 1.25; margin: 1.4rem 0 0.75rem; color: inherit; }
+.blog-content h1 { font-size: 2rem; } .blog-content h2 { font-size: 1.6rem; } .blog-content h3 { font-size: 1.3rem; }
+.blog-content h4 { font-size: 1.15rem; } .blog-content h5 { font-size: 1rem; } .blog-content h6 { font-size: 0.9rem; opacity: .85; }
+.blog-content code { background: rgba(244,63,94,0.10); color: #E11D48; padding: 0.15rem 0.4rem; border-radius: 0.35rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+.blog-content pre { background: rgba(0,0,0,0.75); color: #ffe4e6; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; margin: 1rem 0; }
+.blog-content img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem 0; }
+.blog-content strong { font-weight: 800; color: #E11D48; }
+.blog-content em { font-style: italic; }
+.blog-content u { text-decoration: underline; }
+.blog-content a { color: #E11D48; text-decoration: underline; font-weight: bold; transition: color .15s ease-out; }
+.blog-content a:hover { color: #F43F5E; }
+.blog-content p { margin-bottom: 1.25rem; }
+.blog-content blockquote { border-left: 4px solid #F43F5E; padding-left: 1rem; font-style: italic; opacity: .85; }
+.blog-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+.blog-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+
+div[contentEditable]:empty:before { content: attr(data-placeholder); color: #78716c; font-style: italic; cursor: text; }
+[theme="dark"] div[contentEditable]:empty:before { color: #a8a29e; }
+
+/* Performance: skip layout/paint for off-screen cards in long product & post grids.
+   Keeps scrolling smooth with 100+ items without changing any visual styling. */
+.perf-card { content-visibility: auto; contain-intrinsic-size: 340px; }
+
+/* Respect users who disable animations (also cuts jank on low-end phones) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
