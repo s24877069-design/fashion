@@ -5946,6 +5946,7 @@ export default function App() {
         if (res.ok && active) {
           const data = await res.json();
           setPosts(data);
+          setTempPosts(prev => prev.length === 0 ? data : prev);
           setPostsError(false);
         } else if (active) {
           setPostsError(true);
@@ -6150,19 +6151,30 @@ export default function App() {
   const [lastLoadedPath, setLastLoadedPath] = useState("");
 
   useEffect(() => {
-    if (location.pathname === "/admin" && isLoaded && lastLoadedPath !== "/admin") {
-      setTempProfile(profile);
-      setTempPosts(posts);
-      setTempProducts(products);
-      setTempBlogs(blogs);
-      setDeletedPostIds([]);
-      setDeletedProductIds([]);
-      setDeletedBlogIds([]);
-      setLastLoadedPath("/admin");
+    if (location.pathname === "/admin") {
+      if (posts.length > 0 && tempPosts.length === 0) {
+        setTempPosts(posts);
+      }
+      if (products.length > 0 && tempProducts.length === 0) {
+        setTempProducts(products);
+      }
+      if (blogs.length > 0 && tempBlogs.length === 0) {
+        setTempBlogs(blogs);
+      }
+      if (isLoaded && lastLoadedPath !== "/admin") {
+        setTempProfile(profile);
+        setTempPosts(posts);
+        setTempProducts(products);
+        setTempBlogs(blogs);
+        setDeletedPostIds([]);
+        setDeletedProductIds([]);
+        setDeletedBlogIds([]);
+        setLastLoadedPath("/admin");
+      }
     } else if (location.pathname !== "/admin" && lastLoadedPath === "/admin") {
       setLastLoadedPath("");
     }
-  }, [location.pathname, isLoaded, profile, posts, products, blogs, lastLoadedPath]);
+  }, [location.pathname, isLoaded, profile, posts, products, blogs, lastLoadedPath, tempPosts.length, tempProducts.length, tempBlogs.length]);
 
   const [newPost, setNewPost] = useState({ type: "image", url: "", name: "", description: "", category: "", taggedProducts: [] as number[] });
   const [newProduct, setNewProduct] = useState({ name: "", price: "", url: "", buyUrl: "", description: "", category: "" });
@@ -6867,12 +6879,14 @@ export default function App() {
     if (!isAdminUser) return;
     try {
       const response = await fetch(`/api/messages/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        credentials: "include"
       });
       if (response.ok) {
-        setMessages(messages.filter(m => m.id !== id));
+        setMessages(prev => prev.filter(m => String(m.id) !== String(id)));
       } else {
-        throw new Error("Failed to delete message");
+        const errPayload = await response.json().catch(() => null);
+        throw new Error(errPayload?.error || `Delete failed with status ${response.status}`);
       }
     } catch (error) {
       console.error("Delete failed:", error);
@@ -7993,26 +8007,95 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Posts List */}
-                <div className="grid grid-cols-4 gap-2">
-                  {tempPosts.map((post) => (
-                    <div key={post.id} className="relative aspect-square rounded-lg overflow-hidden group border border-white/10 bg-black">
-                      {post.type === "video" ? (
-                        <div className="w-full h-full relative">
-                          <VideoEmbed url={post.url} minimal />
-                        </div>
-                      ) : (
-                        <MediaImage url={post.url} className="w-full h-full object-cover" />
-                      )}
-                      <button 
-                        onClick={() => setItemToDelete({ type: 'post', id: post.id, docId: post.docId })}
-                        className="absolute top-1 right-1 p-1.5 rounded-md bg-red-500 text-white z-10 shadow-lg"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
+                {/* Posts List Header & Counter */}
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10 flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      {tempPosts.length} {tempPosts.length === 1 ? "Published Post" : "Published Posts"}
+                    </span>
+                    <span className="text-[11px] text-white/50">
+                      All Media Types (Reels, Videos, Photos)
+                    </span>
+                  </div>
                 </div>
+
+                {/* Posts List Body */}
+                {!isPostsLoaded && tempPosts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-6 h-6 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-xs text-white/50 font-bold uppercase tracking-wider">Loading Published Posts...</p>
+                  </div>
+                ) : tempPosts.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-white/15 bg-white/5">
+                    <ImageIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                    <h3 className="text-sm font-bold text-white mb-1">No Published Posts</h3>
+                    <p className="text-xs text-white/40 max-w-sm mx-auto">Upload an image or paste a video link above to add your first post.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {tempPosts.map((post) => {
+                      const isVideo = post.type === "video" || String(post.url || "").includes("youtu") || String(post.url || "").includes("vimeo");
+                      const dateStr = post.created_at ? new Date(post.created_at).toLocaleDateString() : "Active";
+                      const taggedCount = Array.isArray(post.taggedProducts) ? post.taggedProducts.length : 0;
+                      return (
+                        <div key={post.id} className="p-3 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 transition-all flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[10px] font-mono text-white/50">#{post.id}</span>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                isVideo 
+                                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" 
+                                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                              }`}>
+                                {isVideo ? "🎬 Video / Reel" : "📸 Photo / Image"}
+                              </span>
+                            </div>
+
+                            <div className="relative aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/10 mb-2.5">
+                              {isVideo ? (
+                                <VideoEmbed url={post.url} minimal />
+                              ) : (
+                                <MediaImage url={post.url} className="w-full h-full object-cover" />
+                              )}
+                            </div>
+
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center justify-between text-[11px] text-white/60">
+                                <span>{dateStr}</span>
+                                {taggedCount > 0 && (
+                                  <span className="text-rose-400 font-bold">🏷️ {taggedCount} tagged</span>
+                                )}
+                              </div>
+                              {post.name && (
+                                <p className="font-bold text-white line-clamp-1">{post.name}</p>
+                              )}
+                              <a 
+                                href={post.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-[11px] text-rose-400 hover:underline truncate block"
+                                title={post.url}
+                              >
+                                {post.url}
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 mt-3 border-t border-white/10 flex justify-end">
+                            <button 
+                              onClick={() => setItemToDelete({ type: "post", id: post.id, docId: post.docId })}
+                              className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="Delete post"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             )}
 

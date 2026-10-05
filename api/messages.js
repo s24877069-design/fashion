@@ -26,19 +26,26 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const { id } = req.query;
+  let targetId = req.query?.id;
+  if (!targetId && req.url) {
+    const cleanPath = req.url.split('?')[0];
+    const match = cleanPath.match(/\/api\/messages\/([^/]+)/);
+    if (match) targetId = match[1];
+  }
 
   // 1. DELETE: Delete a message by ID
-  if (req.method === 'DELETE' && id) {
+  if (req.method === 'DELETE') {
     if (!requireAdmin(req, res)) return;
 
-    const messageId = parseInt(id, 10);
-    if (isNaN(messageId)) {
-      return res.status(400).json({ error: "Invalid message ID" });
+    if (!targetId) {
+      return res.status(400).json({ error: "Missing message ID" });
     }
 
+    const messageId = parseInt(targetId, 10);
+    const idToUse = isNaN(messageId) ? targetId : messageId;
+
     try {
-      const { error } = await supabase.from("messages").delete().eq("id", messageId);
+      const { error } = await supabase.from("messages").delete().eq("id", idToUse);
       if (!error) {
         return res.status(200).json({ success: true, source: "supabase" });
       }
@@ -49,7 +56,7 @@ export default async function handler(req, res) {
     try {
       if (fs.existsSync(MESSAGES_FILE_PATH)) {
         let currentMessages = JSON.parse(fs.readFileSync(MESSAGES_FILE_PATH, "utf8"));
-        currentMessages = currentMessages.filter(m => m.id !== messageId);
+        currentMessages = currentMessages.filter(m => String(m.id) !== String(idToUse));
         try {
           fs.writeFileSync(MESSAGES_FILE_PATH, JSON.stringify(currentMessages, null, 2), "utf8");
         } catch (fErr) {

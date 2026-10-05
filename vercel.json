@@ -47,6 +47,14 @@
       "destination": "/api/content?entity=posts"
     },
     {
+      "source": "/api/messages/:id",
+      "destination": "/api/messages.js?id=:id"
+    },
+    {
+      "source": "/api/messages",
+      "destination": "/api/messages.js"
+    },
+    {
       "source": "/",
       "destination": "/api/seo-render?type=page&name=home"
     },
