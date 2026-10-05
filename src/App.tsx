@@ -5594,7 +5594,8 @@ export default function App() {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
+  const isDirectAdminOrLogin = typeof window !== 'undefined' && (window.location.pathname === '/admin' || window.location.pathname === '/login');
+  const [showSplash, setShowSplash] = useState(!isDirectAdminOrLogin);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isProductsLoaded, setIsProductsLoaded] = useState(false);
   const [isPostsLoaded, setIsPostsLoaded] = useState(false);
@@ -6920,7 +6921,7 @@ export default function App() {
         {isNavigating && <PageLoader theme={theme} />}
       </AnimatePresence>
       <AnimatePresence mode="wait">
-        {showSplash ? (
+        {showSplash && !isAdminRoute ? (
           <motion.div
             key="splash"
             initial={{ opacity: 0 }}

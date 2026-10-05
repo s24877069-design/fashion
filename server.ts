@@ -84,11 +84,11 @@ async function startServer() {
     const nonce = crypto.randomBytes(16).toString("hex");
     const payload = `${expiresAt}.${nonce}`;
     const token = `${payload}.${signAdminPayload(payload)}`;
-    return `${ADMIN_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${ADMIN_SESSION_TTL_SECONDS}`;
+    return `${ADMIN_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${ADMIN_SESSION_TTL_SECONDS}`;
   }
 
   function clearAdminCookie() {
-    return `${ADMIN_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+    return `${ADMIN_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
   }
 
   function isAdminRequest(req: any) {
@@ -134,8 +134,9 @@ async function startServer() {
   }
 
   function verifyAdminCredentials(username: string, password: string) {
-    const expectedUsername = process.env.ADMIN_USERNAME || "";
-    if (!username || !expectedUsername || !safeEqual(username, expectedUsername)) return false;
+    const expectedUsername = (process.env.ADMIN_USERNAME || "renufashionhub").trim().toLowerCase();
+    const inputUsername = String(username || "").trim().toLowerCase();
+    if (!inputUsername || !expectedUsername || !safeEqual(inputUsername, expectedUsername)) return false;
     return verifyAdminPassword(password);
   }
 

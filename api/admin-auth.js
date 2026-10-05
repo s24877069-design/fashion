@@ -23,12 +23,28 @@ function safeEqualText(a, b) {
 }
 
 function verifyCredentials(username, password) {
-  const expectedUsername = process.env.ADMIN_USERNAME || "";
+  const expectedUsername = (process.env.ADMIN_USERNAME || "renufashionhub").trim().toLowerCase();
+  const inputUsername = String(username || "").trim().toLowerCase();
+  if (!inputUsername || !expectedUsername) return false;
+  if (!safeEqualText(inputUsername, expectedUsername)) return false;
+  if (!password) return false;
+
+  // 1. Direct environment password check (constant-time)
+  if (process.env.ADMIN_PASSWORD && safeEqualText(password, process.env.ADMIN_PASSWORD)) {
+    return true;
+  }
+
+  // 2. Salted scrypt hash check
   const salt = process.env.ADMIN_PASSWORD_SALT || "";
   const expectedHash = process.env.ADMIN_PASSWORD_HASH || "";
-  if (!username || !expectedUsername || !password || !salt || !expectedHash) return false;
-  if (!safeEqualText(username, expectedUsername)) return false;
-  return safeEqualHex(hashPassword(password, salt), expectedHash);
+  if (salt && expectedHash) {
+    const computed = hashPassword(password, salt);
+    if (safeEqualHex(computed, expectedHash)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export default async function handler(req, res) {

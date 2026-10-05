@@ -1023,6 +1023,9 @@ export default async function handler(req, res) {
 
   let html = loadTemplate();
 
+  const is404 = Boolean(payload.is404);
+  const isNonIndexable = Boolean(payload.noRobots || payload.extraHead?.includes("noindex") || is404);
+
   try {
     // Strip existing head tags we plan to replace
     html = html.replace(/<title>[\s\S]*?<\/title>/gi, "");
@@ -1031,8 +1034,6 @@ export default async function handler(req, res) {
     html = html.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/gi, "");
     html = html.replace(/<script\s+type=["']application\/ld\+json["'][\s\S]*?<\/script>/gi, "");
 
-    const is404 = Boolean(payload.is404);
-    const isNonIndexable = Boolean(payload.noRobots || payload.extraHead?.includes("noindex") || is404);
     const t = escapeHtml(payload.title);
     const d = escapeHtml(payload.description);
     const u = (payload.url && !payload.noCanonical && !is404) ? escapeHtml(payload.url) : null;
