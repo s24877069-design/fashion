@@ -8,6 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { isAdminRequest } from './_auth.js';
 
 dotenv.config();
 
@@ -209,6 +210,28 @@ const staticPages = {
     ogType: "website",
     h1: "Cookie Policy",
     body: "Learn about the cookies and tracking technologies used on Renu Fashion Hub, why they are used, and how you can control your browser cookies."
+  },
+  admin: {
+    title: "Admin Portal | Renu Fashion Hub",
+    description: "Administrative control center for Renu Fashion Hub.",
+    path: "/admin",
+    ogType: "website",
+    h1: "Admin Portal",
+    body: "Administrative control center for Renu Fashion Hub.",
+    extraHead: '<meta name="robots" content="noindex, nofollow" />',
+    noRobots: true,
+    noCanonical: true
+  },
+  login: {
+    title: "Admin Login | Renu Fashion Hub",
+    description: "Administrative authentication for Renu Fashion Hub.",
+    path: "/login",
+    ogType: "website",
+    h1: "Admin Login",
+    body: "Administrative authentication for Renu Fashion Hub.",
+    extraHead: '<meta name="robots" content="noindex, nofollow" />',
+    noRobots: true,
+    noCanonical: true
   },
 };
 
@@ -582,14 +605,17 @@ async function buildPayload(type, id, pageName, slug) {
       return build404Payload();
     }
     const page = staticPages[pageName];
+    const isSpecialAdmin = pageName === "admin" || pageName === "login";
     const url = `${baseUrl}${page.path}`;
     const scripts = [];
-    scripts.push(websiteAndOrgLd());
-    if (page.path !== "/") {
-      scripts.push(breadcrumbLd([
-        { name: "Home", url: `${baseUrl}/` },
-        { name: page.h1, url },
-      ]));
+    if (!isSpecialAdmin) {
+      scripts.push(websiteAndOrgLd());
+      if (page.path !== "/") {
+        scripts.push(breadcrumbLd([
+          { name: "Home", url: `${baseUrl}/` },
+          { name: page.h1, url },
+        ]));
+      }
     }
 
     let richHtml = "";
@@ -971,6 +997,22 @@ function loadTemplate() {
 export default async function handler(req, res) {
   const { type, id, name, slug } = req.query || {};
 
+  if (type === "page" && name === "admin") {
+    if (!isAdminRequest(req)) {
+      res.setHeader("Location", "/login");
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      return res.status(307).end();
+    }
+  }
+
+  if (type === "page" && name === "login") {
+    if (isAdminRequest(req)) {
+      res.setHeader("Location", "/admin");
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      return res.status(307).end();
+    }
+  }
+
   let payload;
   try {
     payload = await buildPayload(type, id, name, slug);
@@ -990,16 +1032,19 @@ export default async function handler(req, res) {
     html = html.replace(/<script\s+type=["']application\/ld\+json["'][\s\S]*?<\/script>/gi, "");
 
     const is404 = Boolean(payload.is404);
+    const isNonIndexable = Boolean(payload.noRobots || payload.extraHead?.includes("noindex") || is404);
     const t = escapeHtml(payload.title);
     const d = escapeHtml(payload.description);
-    const u = payload.url ? escapeHtml(payload.url) : null;
-    const img = escapeHtml(payload.image);
-    const ogType = escapeHtml(payload.ogType);
+    const u = (payload.url && !payload.noCanonical && !is404) ? escapeHtml(payload.url) : null;
+    const img = escapeHtml(payload.image || defaultImage);
+    const ogType = escapeHtml(payload.ogType || "website");
 
     const canonicalTag = u ? `<link rel="canonical" href="${u}" />` : "";
     const robotsTag = is404
       ? `<meta name="robots" content="noindex, follow" />`
-      : `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`;
+      : isNonIndexable
+        ? `<meta name="robots" content="noindex, nofollow" />`
+        : `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`;
 
     const injected = `
     <title>${t}</title>
@@ -1054,6 +1099,9 @@ export default async function handler(req, res) {
 
   const httpStatus = payload.is404 ? 404 : 200;
   res.setHeader("Content-Type", "text/html; charset=utf-8");
+  if (isNonIndexable) {
+    res.setHeader("X-Robots-Tag", payload.is404 ? "noindex, follow" : "noindex, nofollow");
+  }
   if (payload.is404) {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   } else {

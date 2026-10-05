@@ -1,6 +1,11 @@
 {
   "trailingSlash": false,
   "cleanUrls": true,
+  "functions": {
+    "api/*.js": {
+      "includeFiles": "dist/**"
+    }
+  },
   "redirects": [
     {
       "source": "/:path*",
@@ -95,11 +100,11 @@
     },
     {
       "source": "/admin",
-      "destination": "/index.html"
+      "destination": "/api/seo-render?type=page&name=admin"
     },
     {
       "source": "/login",
-      "destination": "/index.html"
+      "destination": "/api/seo-render?type=page&name=login"
     },
     {
       "source": "/((?!api/|assets/|favicon|robots\\.txt|ads\\.txt|.*\\..*).*)",

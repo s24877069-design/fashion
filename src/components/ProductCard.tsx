@@ -47,20 +47,20 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
         {/* Origin / Partner Tag */}
         {product.originTag && (
-          <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-stone-900/80 backdrop-blur-xs text-[9px] font-bold text-amber-300 uppercase tracking-wider border border-amber-400/20">
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-full bg-stone-900/80 backdrop-blur-xs text-[8px] sm:text-[9px] font-bold text-amber-300 uppercase tracking-wider border border-amber-400/20">
             {product.originTag}
           </div>
         )}
 
         {/* Discount Badge */}
         {discountPercent && discountPercent > 0 && (
-          <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
+          <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 px-2 py-0.5 rounded-full bg-rose-600 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-sm">
             {discountPercent}% OFF
           </div>
         )}
 
-        {/* Overlay hover CTA */}
-        <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 pointer-events-none">
+        {/* Overlay hover CTA (Desktop) */}
+        <div className="hidden sm:flex absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-end p-3 pointer-events-none">
           <span className="w-full py-2 rounded-xl bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 text-[10px] font-bold uppercase tracking-wider text-center shadow-lg backdrop-blur-xs">
             Quick View →
           </span>
@@ -68,14 +68,14 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
       </a>
 
       {/* Product Content Details */}
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between gap-3">
+      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2.5 sm:gap-3">
         <div>
           {/* Category & Star Rating */}
-          <div className="flex items-center justify-between gap-2 text-[10px] text-stone-500 dark:text-stone-400 mb-1">
-            <span className="uppercase tracking-widest font-semibold text-rose-600 dark:text-rose-400">
+          <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px] text-stone-500 dark:text-stone-400 mb-1">
+            <span className="uppercase tracking-widest font-semibold text-rose-600 dark:text-rose-400 truncate">
               {product.category || "Couture Pick"}
             </span>
-            <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+            <span className="flex items-center gap-0.5 text-amber-500 font-bold shrink-0">
               <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
               <span>{product.rating || "4.8"}</span>
             </span>
@@ -97,13 +97,13 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
         </div>
 
         {/* Price & Action Row */}
-        <div className="pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-1.5">
+        <div className="pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-between gap-1.5 flex-wrap">
+          <div className="flex items-baseline gap-1">
             <span className="font-bold text-sm sm:text-base text-stone-950 dark:text-stone-50">
               ₹{product.price}
             </span>
             {hasDiscount && (
-              <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 line-through">
+              <span className="text-[9px] sm:text-xs text-stone-400 dark:text-stone-500 line-through">
                 ₹{product.originalPrice}
               </span>
             )}
@@ -115,7 +115,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors shrink-0"
               title="Buy from verified partner store"
             >
               <span>Shop</span>
@@ -125,7 +125,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             <button
               type="button"
               onClick={() => navigate(`/product/${product.id}`)}
-              className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-0.5"
+              className="px-2 py-1.5 min-h-[36px] text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-0.5 shrink-0 cursor-pointer"
             >
               <span>Details</span>
               <ArrowRight className="w-3 h-3" />

@@ -1129,7 +1129,7 @@ async function startServer() {
     res.redirect(308, "/about");
   });
 
-  const staticPages: Record<string, { title: string; description: string; path: string; ogType: string; h1: string; body: string }> = {
+  const staticPages: Record<string, { title: string; description: string; path: string; ogType: string; h1: string; body: string; noRobots?: boolean; noCanonical?: boolean }> = {
     home: {
       title: "Renu Fashion Hub | Sarees, Kurtis, Jewellery & Style Guides by Renu Agarwal",
       description: "Renu Fashion Hub by Renu Agarwal — women's fashion inspiration, saree & kurti styling, jewellery picks, outfit ideas and honest shopping guides for Indian women.",
@@ -1201,6 +1201,26 @@ async function startServer() {
       ogType: "website",
       h1: "Cookie Policy",
       body: "Learn about the cookies and tracking technologies used on Renu Fashion Hub, why they are used, and how you can control your browser cookies."
+    },
+    admin: {
+      title: "Admin Portal | Renu Fashion Hub",
+      description: "Administrative control center for Renu Fashion Hub.",
+      path: "/admin",
+      ogType: "website",
+      h1: "Admin Portal",
+      body: "Administrative control center for Renu Fashion Hub.",
+      noRobots: true,
+      noCanonical: true
+    },
+    login: {
+      title: "Admin Login | Renu Fashion Hub",
+      description: "Administrative authentication for Renu Fashion Hub.",
+      path: "/login",
+      ogType: "website",
+      h1: "Admin Login",
+      body: "Administrative authentication for Renu Fashion Hub.",
+      noRobots: true,
+      noCanonical: true
     },
   };
 
@@ -1388,10 +1408,13 @@ async function startServer() {
       html = html.replace(/<meta\s+[^>]*name=["']twitter:image["'][^>]*>/gi, "");
       html = html.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/gi, "");
 
-      const canonicalTag = url ? `<link rel="canonical" href="${escapeXml(url)}" />` : "";
+      const isSpecialAdmin = pageName === "admin" || pageName === "login";
+      const canonicalTag = (url && !isSpecialAdmin) ? `<link rel="canonical" href="${escapeXml(url)}" />` : "";
       const robotsTag = is404
         ? `<meta name="robots" content="noindex, follow" />`
-        : `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`;
+        : isSpecialAdmin
+          ? `<meta name="robots" content="noindex, nofollow" />`
+          : `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`;
 
       const cleanMeta = `
       <title>${escapeXml(title)}</title>
@@ -1581,15 +1604,21 @@ async function startServer() {
   app.get("/product/:id", (req, res) => serveSeoHtml(req, res, "product"));
   app.get("/post/:id", (req, res) => serveSeoHtml(req, res, "post"));
 
-  // Admin & Login routes
-  app.get(["/admin", "/login"], (req, res) => {
-    res.setHeader("X-Robots-Tag", "noindex, nofollow");
-    const distPath = path.join(process.cwd(), "dist");
-    if (fs.existsSync(path.join(distPath, "index.html"))) {
-      res.sendFile(path.join(distPath, "index.html"));
-    } else {
-      res.sendFile(path.join(process.cwd(), "index.html"));
+  // Admin & Login routes with auth session enforcement
+  app.get("/admin", (req, res) => {
+    if (!isAdminRequest(req)) {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      return res.redirect(307, "/login");
     }
+    return serveSeoHtml(req, res, "page", "admin");
+  });
+
+  app.get("/login", (req, res) => {
+    if (isAdminRequest(req)) {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      return res.redirect(307, "/admin");
+    }
+    return serveSeoHtml(req, res, "page", "login");
   });
 
   const httpServer = http.createServer(app);

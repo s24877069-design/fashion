@@ -57,13 +57,13 @@ export const CATEGORIES_DATA = [
 
 export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ handleNavigate, products = [] }) => {
   return (
-    <section id="categories-section" className="py-12 sm:py-16 border-t border-stone-200/80 dark:border-stone-800/80">
+    <section id="categories-section" className="py-10 sm:py-16 border-t border-stone-200/80 dark:border-stone-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-12">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-1.5">
+            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-1 sm:mb-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Haute Collections</span>
             </div>
@@ -76,7 +76,7 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ handleNaviga
           </p>
         </div>
 
-        {/* 5-Column Responsive Category Grid */}
+        {/* 2-Column on Mobile (with 5th spanning 2 columns), 3 on MD, 5 on LG */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
           {CATEGORIES_DATA.map((cat, idx) => {
             // Find live product image if available
@@ -95,7 +95,9 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ handleNaviga
                   e.preventDefault();
                   handleNavigate(cat.href);
                 }}
-                className="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-stone-100 dark:bg-stone-900 border border-stone-200/70 dark:border-stone-800 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 block text-inherit no-underline"
+                className={`group relative rounded-2xl overflow-hidden ${
+                  idx === 4 ? "col-span-2 md:col-span-1 aspect-[2/1] sm:aspect-[3/4]" : "aspect-[3/4]"
+                } bg-stone-100 dark:bg-stone-900 border border-stone-200/70 dark:border-stone-800 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 block text-inherit no-underline`}
               >
                 {/* Category Background Image with graceful fallback */}
                 <img
@@ -105,7 +107,6 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ handleNaviga
                   loading="lazy"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    // Styled resilient fallback if image cannot load
                     const target = e.currentTarget;
                     target.style.display = "none";
                     if (target.parentElement) {
@@ -118,13 +119,13 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ handleNaviga
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-950/40 to-transparent" />
 
                 {/* Top Item Count Tag */}
-                <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-stone-900/80 backdrop-blur-xs text-[9px] font-bold text-stone-200 border border-white/10">
+                <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 px-2 py-0.5 rounded-full bg-stone-900/80 backdrop-blur-xs text-[9px] font-bold text-stone-200 border border-white/10">
                   {cat.count}
                 </div>
 
                 {/* Bottom Details */}
-                <div className="absolute bottom-0 left-0 right-0 p-3.5 sm:p-4 text-white">
-                  <div className="flex items-center justify-between gap-1 mb-1">
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 text-white">
+                  <div className="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
                     <h3 className="font-serif text-sm sm:text-base font-bold text-stone-50 tracking-tight leading-tight group-hover:text-rose-300 transition-colors">
                       {cat.name}
                     </h3>

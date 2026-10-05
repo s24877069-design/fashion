@@ -110,6 +110,18 @@ export default async function handler(req, res) {
       statusCode = code;
       return proxy;
     },
+    redirect(statusOrUrl, maybeUrl) {
+      sent = true;
+      if (typeof statusOrUrl === 'number') {
+        statusCode = statusOrUrl;
+        res.setHeader('Location', maybeUrl);
+        return res.status(statusCode).end();
+      } else {
+        statusCode = 302;
+        res.setHeader('Location', statusOrUrl);
+        return res.status(statusCode).end();
+      }
+    },
     json(payload) {
       sent = true;
       res.status(statusCode).json(payload);
@@ -132,6 +144,10 @@ export default async function handler(req, res) {
   }
 
   if (sent) return;
+
+  if (statusCode >= 300 && statusCode < 400) {
+    return res.status(statusCode).end();
+  }
 
   const is404 = statusCode === 404;
   let html = body;

@@ -724,16 +724,55 @@ const PageNotFoundPage = ({ theme, navigate }: { theme: string; navigate: any })
           The requested page does not exist on this website. Please return to Renu Fashion Hub's homepage to explore the boutique creations!
         </p>
 
-        {/* Action Button */}
-        <motion.button
-          whileHover={{ scale: 1.02, y: -1 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/")}
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 text-stone-950 font-sans font-black text-xs uppercase tracking-widest shadow-[0_10px_25px_rgba(217,119,6,0.3)] hover:from-rose-500 hover:to-rose-400 transition-all cursor-pointer"
-          id="notfound-back-home-btn"
-        >
-          Back To Homepage ✨
-        </motion.button>
+        {/* Action Buttons */}
+        <div className="w-full space-y-2.5 mb-6">
+          <motion.button
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/")}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 text-stone-950 font-sans font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/20 hover:from-rose-500 hover:to-rose-400 transition-all cursor-pointer"
+            id="notfound-back-home-btn"
+          >
+            Back To Homepage ✨
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => window.history.length > 1 ? window.history.back() : navigate("/")}
+            className={`w-full py-2.5 rounded-xl border ${theme === "dark" ? "border-white/10 hover:bg-white/5 text-stone-300" : "border-stone-200 hover:bg-stone-50 text-stone-700"} font-sans font-bold text-xs uppercase tracking-wider transition-all cursor-pointer`}
+          >
+            ← Return to Previous Page
+          </motion.button>
+        </div>
+
+        {/* Quick Category Discovery */}
+        <div className="w-full pt-4 border-t border-rose-500/10">
+          <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 dark:text-stone-500 mb-2">
+            Explore Curated Silhouettes
+          </p>
+          <div className="flex flex-wrap gap-1.5 justify-center">
+            {[
+              { path: "/category/sarees", label: "Sarees" },
+              { path: "/category/kurtas", label: "Kurtis" },
+              { path: "/category/lehengas", label: "Lehengas" },
+              { path: "/category/dresses", label: "Dresses" },
+              { path: "/category/jewelry", label: "Jewellery" },
+            ].map((cat) => (
+              <button
+                key={cat.path}
+                onClick={() => navigate(cat.path)}
+                className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                  theme === "dark"
+                    ? "bg-white/5 border-white/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-400/40"
+                    : "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100 hover:border-rose-300"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </motion.div>
     </div>
   );
@@ -1101,6 +1140,13 @@ const ProductDetailPage = ({ products, theme, navigate, isLoaded }: { products: 
   const [show4KModal, setShow4KModal] = useState(false);
   const reviewsContainerRef = useRef<HTMLDivElement>(null);
 
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    return products
+      .filter(p => p.id !== product.id && (!product.category || p.category === product.category))
+      .slice(0, 4);
+  }, [products, product]);
+
   useEffect(() => {
     if (product) {
       document.title = `${product.name} | Renu Fashion Hub`;
@@ -1456,6 +1502,34 @@ const ProductDetailPage = ({ products, theme, navigate, isLoaded }: { products: 
           </div>
 
         </div>
+
+        {/* Related Handpicked Styles */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-12 sm:mt-16 pt-8 border-t border-stone-200/80 dark:border-stone-800/80">
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-1">
+                  Complete the Look
+                </p>
+                <h2 className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
+                  Related Handpicked Styles
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/category/${getCategorySlug(product.category || product.name)}`)}
+                className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:underline min-h-[36px] flex items-center cursor-pointer"
+              >
+                View Category →
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+              {relatedProducts.map((relProduct) => (
+                <ProductCard key={relProduct.id} product={relProduct} navigate={navigate} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Copy Link Toast Notification */}
@@ -5543,6 +5617,7 @@ export default function App() {
   const [productsError, setProductsError] = useState(false);
   const [blogsError, setBlogsError] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isAdminChecking, setIsAdminChecking] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // Temporary states for Admin Panel
@@ -5821,6 +5896,8 @@ export default function App() {
         }
       } catch {
         if (active) setIsAdminUser(false);
+      } finally {
+        if (active) setIsAdminChecking(false);
       }
     }
 
@@ -6906,7 +6983,14 @@ export default function App() {
           transition={{ duration: 0.3 }}
           className={`min-h-screen ${theme === "dark" ? "gold-grain-dark text-rose-50" : "gold-grain-light text-stone-900"} font-sans transition-colors duration-300`}
         >
-          {!isAdminUser ? (
+          {isAdminChecking ? (
+            <div className={`min-h-screen flex flex-col items-center justify-center p-6 ${theme === "dark" ? "gold-grain-dark text-rose-50" : "gold-grain-light text-stone-900"}`}>
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 mb-4 animate-pulse">
+                <Settings className="w-8 h-8 text-rose-500 animate-spin-slow" />
+              </div>
+              <p className="text-xs font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">Verifying Admin Session...</p>
+            </div>
+          ) : !isAdminUser ? (
             <Navigate to="/login" replace />
           ) : (
           <div className="pb-32">
@@ -6931,7 +7015,7 @@ export default function App() {
                     // Client state is still cleared below.
                   }
                   setIsAdminUser(false);
-                  handleNavigate("/");
+                  handleNavigate("/login");
                 }}
                 className={`p-2 rounded-xl ${theme === "dark" ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" : "bg-red-500/5 border-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"} transition-all border`}
                 title="Logout"
@@ -7599,7 +7683,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="max-w-2xl mx-auto p-3.5 sm:p-6">
           {/* Admin Tabs */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide" onWheel={(e) => { if (e.deltaY !== 0) { e.currentTarget.scrollLeft += e.deltaY; } }}>
             {[
@@ -8725,6 +8809,16 @@ export default function App() {
   </motion.div>
           } />
           <Route path="/login" element={
+            isAdminChecking ? (
+              <div className={`min-h-screen flex flex-col items-center justify-center p-6 ${theme === "dark" ? "gold-grain-dark text-rose-50" : "gold-grain-light text-stone-900"}`}>
+                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 mb-4 animate-pulse">
+                  <Settings className="w-8 h-8 text-rose-500 animate-spin-slow" />
+                </div>
+                <p className="text-xs font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">Verifying Admin Session...</p>
+              </div>
+            ) : isAdminUser ? (
+              <Navigate to="/admin" replace />
+            ) : (
         <motion.div
           key="login"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -8797,6 +8891,7 @@ export default function App() {
           </form>
         </motion.div>
         </motion.div>
+            )
           } />
           <Route path="/contact" element={
         <motion.div

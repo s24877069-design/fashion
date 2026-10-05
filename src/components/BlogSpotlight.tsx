@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, ArrowRight, Clock, Calendar } from "lucide-react";
+import { BookOpen, ArrowRight, Clock } from "lucide-react";
 
 interface BlogSpotlightProps {
   blogs: any[];
@@ -42,13 +42,13 @@ export const BlogSpotlight: React.FC<BlogSpotlightProps> = ({ blogs, handleNavig
   ];
 
   return (
-    <section className="py-16 md:py-24 border-t border-stone-200/80 dark:border-stone-800/80">
+    <section className="py-12 sm:py-16 md:py-24 border-t border-stone-200/80 dark:border-stone-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 sm:mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-1.5">
+            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-1 sm:mb-1.5">
               <BookOpen className="w-3.5 h-3.5" />
               <span>Fashion Editorial</span>
             </div>
@@ -63,7 +63,7 @@ export const BlogSpotlight: React.FC<BlogSpotlightProps> = ({ blogs, handleNavig
               e.preventDefault();
               handleNavigate("/blog");
             }}
-            className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group"
+            className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group w-fit min-h-[36px]"
           >
             <span>View All Guides</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -71,7 +71,7 @@ export const BlogSpotlight: React.FC<BlogSpotlightProps> = ({ blogs, handleNavig
         </div>
 
         {/* 3-Column Editorial Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
           {displayBlogs.map((blog) => {
             const cleanId = blog.id;
             const imageUrl = blog.image || blog.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=700&q=80";
@@ -107,10 +107,10 @@ export const BlogSpotlight: React.FC<BlogSpotlightProps> = ({ blogs, handleNavig
                 </Link>
 
                 {/* Article Content */}
-                <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between gap-4">
+                <div className="p-4 sm:p-6 flex flex-col flex-1 justify-between gap-3 sm:gap-4">
                   <div>
                     {/* Unboxed Metadata (Zero-Pill Rule) */}
-                    <div className="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400 mb-2 font-medium">
+                    <div className="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400 mb-1.5 sm:mb-2 font-medium">
                       <span className="text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">
                         {blog.category || "Style Advice"}
                       </span>
@@ -130,33 +130,32 @@ export const BlogSpotlight: React.FC<BlogSpotlightProps> = ({ blogs, handleNavig
                       }}
                       className="text-inherit no-underline block"
                     >
-                      <h3 className="font-serif text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-50 leading-snug group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors line-clamp-2">
+                      <h3 className="font-serif text-base sm:text-xl font-bold text-stone-900 dark:text-stone-50 leading-snug group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors line-clamp-2">
                         {blog.title}
                       </h3>
                     </Link>
 
                     {/* Excerpt */}
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1.5 sm:mt-2 line-clamp-2 leading-relaxed">
                       {blog.excerpt || blog.content?.replace(/<[^>]+>/g, "").slice(0, 120)}...
                     </p>
                   </div>
 
-                  {/* Read Link */}
-                  <div className="pt-3 border-t border-stone-100 dark:border-stone-800/80">
+                  {/* Read Article Action Link */}
+                  <div className="pt-2 border-t border-stone-100 dark:border-stone-800/60">
                     <Link
                       to={`/blog/${cleanId}`}
                       onClick={(e) => {
                         e.preventDefault();
                         handleNavigate(`/blog/${cleanId}`);
                       }}
-                      className="text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 flex items-center gap-1"
+                      className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 inline-flex items-center gap-1 min-h-[36px]"
                     >
-                      <span>Read Full Guide</span>
+                      <span>Read Styling Guide</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
                 </div>
-
               </article>
             );
           })}

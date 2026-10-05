@@ -179,15 +179,6 @@ export const Footer: React.FC<FooterProps> = ({
                   Contact & Styling Help
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/admin" 
-                  onClick={(e) => { e.preventDefault(); handleNavigate("/admin"); }}
-                  className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                >
-                  Admin Portal
-                </Link>
-              </li>
             </ul>
           </div>
 
