@@ -68,6 +68,323 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Renu Agarwal" />
 
+    <link rel="stylesheet" href="/src/index.css" />
+    <style id="rfh-critical-css">
+      :root {
+        --rf-bg: #FAF8F5;
+        --rf-surface: #FFFFFF;
+        --rf-elevated: #F4F1EA;
+        --rf-text: #1C1917;
+        --rf-muted: #78716C;
+        --rf-border: rgba(28, 25, 23, 0.08);
+        --rf-accent: #9E1F3B;
+        --rf-accent-hover: #7F172E;
+      }
+      html.dark {
+        --rf-bg: #141211;
+        --rf-surface: #1C1A19;
+        --rf-elevated: #242220;
+        --rf-text: #F7F5F2;
+        --rf-muted: #A8A29E;
+        --rf-border: rgba(255, 255, 255, 0.09);
+        --rf-accent: #E05370;
+        --rf-accent-hover: #F26F8B;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--rf-bg);
+        color: var(--rf-text);
+        font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Global resets for all server-rendered fallback elements */
+      [data-seo-fallback="1"], .rf-ssr-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--rf-bg);
+        color: var(--rf-text);
+        box-sizing: border-box;
+      }
+      [data-seo-fallback="1"] * {
+        box-sizing: border-box;
+      }
+      [data-seo-fallback="1"] ul, [data-seo-fallback="1"] ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      [data-seo-fallback="1"] a {
+        color: var(--rf-accent);
+        text-decoration: none;
+        transition: color 0.15s ease-out;
+      }
+      [data-seo-fallback="1"] a:hover {
+        color: var(--rf-accent-hover);
+      }
+      [data-seo-fallback="1"] h1 {
+        font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin: 0 0 14px 0;
+        color: var(--rf-text);
+        letter-spacing: -0.015em;
+      }
+      [data-seo-fallback="1"] h2 {
+        font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 28px 0 14px 0;
+        color: var(--rf-text);
+        letter-spacing: -0.01em;
+      }
+      [data-seo-fallback="1"] h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 20px 0 10px 0;
+        color: var(--rf-text);
+      }
+      [data-seo-fallback="1"] p {
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--rf-muted);
+        margin: 0 0 16px 0;
+      }
+
+      /* Top luxury announcement bar */
+      .rf-ssr-topbar {
+        background-color: #1C1917;
+        color: #E7E5E4;
+        font-size: 11px;
+        padding: 6px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      html.dark .rf-ssr-topbar {
+        background-color: #0C0A09;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .rf-ssr-topbar-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .rf-ssr-topbar a {
+        color: #A8A29E !important;
+        text-decoration: none;
+      }
+      .rf-ssr-topbar a:hover {
+        color: #F43F5E !important;
+      }
+      @media (max-width: 640px) {
+        .rf-ssr-topbar { display: none; }
+      }
+
+      /* Main navigation header */
+      .rf-ssr-header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background-color: var(--rf-surface);
+        border-bottom: 1px solid var(--rf-border);
+        padding: 14px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        transition: background-color 0.2s, border-color 0.2s;
+      }
+      .rf-ssr-brand {
+        display: flex;
+        flex-direction: column;
+      }
+      .rf-ssr-logo {
+        font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        color: var(--rf-text) !important;
+        text-decoration: none;
+        line-height: 1.1;
+      }
+      .rf-ssr-tagline {
+        font-size: 8.5px;
+        color: var(--rf-accent);
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+      .rf-ssr-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .rf-ssr-nav a {
+        color: var(--rf-text) !important;
+        text-decoration: none;
+        opacity: 0.85;
+      }
+      .rf-ssr-nav a:hover {
+        color: var(--rf-accent) !important;
+        opacity: 1;
+      }
+
+      /* Main body container */
+      .rf-ssr-main {
+        max-width: 1120px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 32px 20px;
+        box-sizing: border-box;
+        flex: 1;
+      }
+      .rf-ssr-breadcrumb {
+        font-size: 12px;
+        color: var(--rf-muted);
+        margin-bottom: 16px;
+      }
+      .rf-ssr-breadcrumb a {
+        color: var(--rf-accent);
+      }
+      .rf-ssr-banner {
+        background: rgba(158, 31, 59, 0.06);
+        border: 1px solid rgba(158, 31, 59, 0.15);
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin: 20px 0 28px 0;
+      }
+      .rf-ssr-banner p {
+        margin: 0;
+        color: var(--rf-accent);
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .rf-ssr-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+        margin: 18px 0 32px 0;
+        list-style: none;
+        padding: 0;
+      }
+      .rf-ssr-card {
+        background: var(--rf-surface);
+        border: 1px solid var(--rf-border);
+        border-radius: 14px;
+        padding: 16px;
+        box-sizing: border-box;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .rf-ssr-card a {
+        color: inherit !important;
+        text-decoration: none;
+      }
+      .rf-ssr-card strong {
+        display: block;
+        font-size: 14px;
+        color: var(--rf-text);
+        margin-bottom: 4px;
+      }
+      .rf-ssr-price {
+        color: var(--rf-accent);
+        font-weight: 700;
+        font-size: 13.5px;
+      }
+      .rf-ssr-pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 28px 0;
+        list-style: none;
+        padding: 0;
+      }
+      .rf-ssr-pill {
+        display: inline-block;
+        padding: 8px 18px;
+        background: var(--rf-elevated);
+        border: 1px solid var(--rf-border);
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--rf-text) !important;
+        text-decoration: none;
+      }
+      .rf-ssr-pill:hover {
+        border-color: var(--rf-accent);
+        color: var(--rf-accent) !important;
+      }
+      .rf-ssr-footer {
+        border-top: 1px solid var(--rf-border);
+        padding: 28px 20px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--rf-muted);
+        background-color: var(--rf-surface);
+      }
+      .rf-ssr-footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+        margin: 0 0 14px 0;
+        list-style: none;
+        padding: 0;
+      }
+      .rf-ssr-footer-links a {
+        color: var(--rf-muted) !important;
+        text-decoration: none;
+      }
+      .rf-ssr-footer-links a:hover {
+        color: var(--rf-accent) !important;
+      }
+      .rf-ssr-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+      }
+      .rf-ssr-auth-card {
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        padding: 38px 26px;
+        border-radius: 20px;
+        background: var(--rf-surface);
+        border: 1px solid var(--rf-border);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.05);
+      }
+      .rf-ssr-auth-icon {
+        font-size: 34px;
+        margin-bottom: 12px;
+      }
+      .rf-ssr-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        background: rgba(158, 31, 59, 0.08);
+        color: var(--rf-accent);
+        border: 1px solid rgba(158, 31, 59, 0.2);
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 16px;
+      }
+    </style>
+
     <title>Renu Fashion Hub | Sarees, Kurtis, Jewellery & Style Guides by Renu Agarwal</title>
     <meta name="description" content="Renu Fashion Hub by Renu Agarwal — women's fashion inspiration, saree & kurti styling, jewellery picks, outfit ideas and honest shopping guides for Indian women." />
     <meta name="keywords" content="Renu Fashion Hub, Renu Agarwal, sarees, kurtis, lehengas, jewellery, Indian women fashion, outfit ideas, styling guides" />

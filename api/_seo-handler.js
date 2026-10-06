@@ -474,7 +474,100 @@ async function fetchRelatedProducts(category, excludeId, limit = 4) {
   }
 }
 
+function wrapInShell(innerHtml, isAuth = false, authType = "admin") {
+  if (isAuth) {
+    const isLogin = authType === "login";
+    return `
+      <div data-seo-fallback="1" class="rf-ssr-shell">
+        <header class="rf-ssr-header">
+          <div class="rf-ssr-brand">
+            <a href="/" class="rf-ssr-logo">RENU FASHION HUB</a>
+            <span class="rf-ssr-tagline">Administrative Control Center</span>
+          </div>
+          <nav class="rf-ssr-nav">
+            <a href="/">Back to Website</a>
+          </nav>
+        </header>
+        <main class="rf-ssr-main rf-ssr-center">
+          <div class="rf-ssr-card rf-ssr-auth-card">
+            <div class="rf-ssr-auth-icon">${isLogin ? '🔒' : '⚙️'}</div>
+            <h1>${isLogin ? 'Admin Authentication' : 'Admin Portal'}</h1>
+            <p>${isLogin ? 'Secure access for Renu Fashion Hub administrative management.' : 'Administrative control center and management portal.'}</p>
+            <div class="rf-ssr-badge">${isLogin ? 'Loading Login Portal...' : 'Verifying Admin Session...'}</div>
+          </div>
+        </main>
+      </div>
+    `;
+  }
+
+  return `
+    <div data-seo-fallback="1" class="rf-ssr-shell">
+      <div class="rf-ssr-topbar">
+        <div class="rf-ssr-topbar-inner">
+          <span>✨ Curated Indian Haute Couture &amp; Styling Guides by Renu Agarwal · Verified Boutique Links</span>
+          <a href="https://wa.me/917248763036" target="_blank" rel="noopener noreferrer">Personal Style Assist: +91 72487 63036</a>
+        </div>
+      </div>
+      <header class="rf-ssr-header">
+        <div class="rf-ssr-brand">
+          <a href="/" class="rf-ssr-logo">RENU FASHION HUB</a>
+          <span class="rf-ssr-tagline">HAUTE COUTURE &amp; STYLING</span>
+        </div>
+        <nav class="rf-ssr-nav" aria-label="Main Navigation">
+          <a href="/">Home</a>
+          <a href="/category/sarees">Sarees</a>
+          <a href="/category/kurtas">Kurtis &amp; Suits</a>
+          <a href="/category/lehengas">Lehengas</a>
+          <a href="/category/dresses">Dresses</a>
+          <a href="/category/jewelry">Jewellery</a>
+          <a href="/blog">Fashion Blog</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+      <main class="rf-ssr-main">
+        ${innerHtml}
+      </main>
+      <footer class="rf-ssr-footer">
+        <ul class="rf-ssr-footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/category/sarees">Sarees</a></li>
+          <li><a href="/category/kurtas">Kurtis &amp; Suits</a></li>
+          <li><a href="/category/lehengas">Lehengas</a></li>
+          <li><a href="/category/dresses">Western Dresses</a></li>
+          <li><a href="/category/jewelry">Jewellery</a></li>
+          <li><a href="/blog">Fashion Blog</a></li>
+          <li><a href="/about">About Renu Agarwal</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><a href="/privacy-policy">Privacy Policy</a></li>
+          <li><a href="/terms-of-service">Terms of Service</a></li>
+          <li><a href="/disclaimer">Disclaimer</a></li>
+          <li><a href="/affiliate-disclosure">Affiliate Disclosure</a></li>
+          <li><a href="/cookie-policy">Cookie Policy</a></li>
+        </ul>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8;">© 2026 Renu Fashion Hub · Curated by Renu Agarwal. All rights reserved.</p>
+      </footer>
+    </div>
+  `;
+}
+
 function build404Payload() {
+  const inner = `
+    <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+      <h1 style="color: #881337;">404 — Page Not Found</h1>
+      <p>The page you are looking for does not exist, has been removed, or is temporarily unavailable.</p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 24px 0;">
+        <a href="/" class="rf-ssr-pill" style="background: #e11d48; color: #ffffff;">Return to Homepage</a>
+        <a href="/blog" class="rf-ssr-pill">Explore Fashion Blog</a>
+        <a href="/contact" class="rf-ssr-pill">Contact Support</a>
+      </div>
+      <h2>Browse Popular Collections</h2>
+      <ul class="rf-ssr-pill-list" style="justify-content: center;">
+        ${Object.values(CATEGORY_CONFIGS).map(c => `<li><a href="/category/${c.slug}" class="rf-ssr-pill">${escapeHtml(c.name)}</a></li>`).join('')}
+      </ul>
+    </div>
+  `;
+
   return {
     is404: true,
     title: "404 Not Found | Renu Fashion Hub",
@@ -485,21 +578,7 @@ function build404Payload() {
     h1: "404 — Page Not Found",
     body: "We couldn't find the page you were looking for. Explore our curated collections of sarees, kurtis, jewellery and styling guides, or return to the homepage.",
     extraHead: '<meta name="robots" content="noindex, follow" />',
-    richHtml: `
-      <div data-seo-fallback="1" style="max-width: 680px; margin: 48px auto; padding: 32px 20px; text-align: center;">
-        <h1>404 — Page Not Found</h1>
-        <p>The page you are looking for does not exist, has been removed, or is temporarily unavailable.</p>
-        <p><a href="/">Return to Homepage</a> • <a href="/blog">Explore Fashion Blog</a> • <a href="/contact">Contact Support</a></p>
-        <h2>Browse Popular Collections</h2>
-        <ul>
-          <li><a href="/category/sarees">Designer Sarees</a></li>
-          <li><a href="/category/kurtas">Kurtis & Kurta Sets</a></li>
-          <li><a href="/category/lehengas">Bridal Lehengas</a></li>
-          <li><a href="/category/dresses">Western Dresses</a></li>
-          <li><a href="/category/jewelry">Jewellery & Accessories</a></li>
-        </ul>
-      </div>
-    `
+    richHtml: wrapInShell(inner)
   };
 }
 
@@ -555,36 +634,35 @@ async function buildPayload(type, id, pageName, slug) {
 
     const otherCategories = Object.values(CATEGORY_CONFIGS).filter(c => c.slug !== cleanSlug);
 
-    const richHtml = `
-      <div data-seo-fallback="1" style="max-width: 980px; margin: 0 auto; padding: 32px 20px;">
-        <nav aria-label="Breadcrumb" style="font-size: 12px; margin-bottom: 16px; color: #78716c;">
-          <a href="/" style="color: #e11d48;">Home</a> &gt;
-          <a href="/blog" style="color: #e11d48;">Fashion Blog</a> &gt;
-          <span>${escapeHtml(conf.name)}</span>
-        </nav>
-        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #1c1917;">${escapeHtml(conf.h1)}</h1>
-        <p style="font-size: 15px; color: #57534e; line-height: 1.6; margin-bottom: 24px;">${escapeHtml(conf.intro)}</p>
+    const innerCategory = `
+      <div class="rf-ssr-breadcrumb">
+        <a href="/">Home</a> &gt;
+        <a href="/blog">Fashion Blog</a> &gt;
+        <span>${escapeHtml(conf.name)}</span>
+      </div>
+      <h1>${escapeHtml(conf.h1)}</h1>
+      <p>${escapeHtml(conf.intro)}</p>
 
-        <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 16px 20px; margin-bottom: 32px;">
-          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #9f1239;">Curated Style Advice by Renu Agarwal</h3>
-          <p style="font-size: 13px; color: #881337; margin: 0;">
-            Learn expert draping, occasion pairing and fabric guidance in our in-depth editorial:
-            <a href="/blog/${conf.blogId}" style="color: #e11d48; font-weight: 700; text-decoration: underline;">${escapeHtml(conf.blogTitle)}</a>.
-          </p>
-        </div>
+      <div class="rf-ssr-banner">
+        <p>
+          Curated Style Advice by Renu Agarwal: Read our in-depth editorial
+          <a href="/blog/${conf.blogId}" style="color: #e11d48; font-weight: 700; text-decoration: underline;">${escapeHtml(conf.blogTitle)}</a>.
+        </p>
+      </div>
 
-        ${productListHtml}
+      ${productListHtml}
 
-        <nav style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e7e5e4;">
-          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1c1917;">Explore Other Collections</h3>
-          <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 12px;">
-            ${otherCategories.map(c => `
-              <li><a href="/category/${c.slug}" style="display: inline-block; padding: 8px 16px; background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 9999px; text-decoration: none; font-size: 13px; font-weight: 600; color: #1c1917;">${escapeHtml(c.name)}</a></li>
-            `).join('')}
-          </ul>
-        </nav>
+      <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--rf-border);">
+        <h3>Explore Other Collections</h3>
+        <ul class="rf-ssr-pill-list">
+          ${otherCategories.map(c => `
+            <li><a href="/category/${c.slug}" class="rf-ssr-pill">${escapeHtml(c.name)}</a></li>
+          `).join('')}
+        </ul>
       </div>
     `;
+
+    const richHtml = wrapInShell(innerCategory);
 
     return {
       title: conf.title,
@@ -620,123 +698,119 @@ async function buildPayload(type, id, pageName, slug) {
 
     let richHtml = "";
 
-    // Rich SSR for Homepage
-    if (pageName === "home") {
+    if (pageName === "admin" || pageName === "login") {
+      richHtml = wrapInShell("", true, pageName);
+    } else if (pageName === "home") {
       const [curatedProducts, blogs] = await Promise.all([
         fetchCuratedProducts(16),
         fetchPublishedBlogs(6)
       ]);
 
-      richHtml = `
-        <div data-seo-fallback="1" style="max-width: 1040px; margin: 0 auto; padding: 32px 20px;">
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #1c1917;">${escapeHtml(page.h1)}</h1>
-          <p style="font-size: 15px; color: #57534e; line-height: 1.6; margin-bottom: 32px;">${escapeHtml(page.body)}</p>
+      const innerHome = `
+        <h1>${escapeHtml(page.h1)}</h1>
+        <p>${escapeHtml(page.body)}</p>
 
-          <section style="margin-bottom: 40px;">
-            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #1c1917;">Shop by Category</h2>
-            <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-              ${Object.values(CATEGORY_CONFIGS).map(c => `
-                <li style="background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 12px; padding: 14px 16px;">
-                  <a href="/category/${c.slug}" style="text-decoration: none; color: inherit;">
-                    <strong style="display: block; font-size: 14px; color: #e11d48; margin-bottom: 4px;">${escapeHtml(c.name)}</strong>
-                    <span style="font-size: 11px; color: #78716c; line-height: 1.3; display: block;">${escapeHtml(c.title.split('|')[0].trim())}</span>
+        <section style="margin-bottom: 36px;">
+          <h2>Shop by Category</h2>
+          <ul class="rf-ssr-pill-list">
+            ${Object.values(CATEGORY_CONFIGS).map(c => `
+              <li><a href="/category/${c.slug}" class="rf-ssr-pill">${escapeHtml(c.name)}</a></li>
+            `).join('')}
+          </ul>
+        </section>
+
+        <section style="margin-bottom: 36px;">
+          <h2>Trending Fashion Picks</h2>
+          <ul class="rf-ssr-grid">
+            ${curatedProducts.map(p => `
+              <li class="rf-ssr-card">
+                <article>
+                  <a href="/product/${p.id}">
+                    <strong>${escapeHtml(p.name)}</strong>
+                    <span class="rf-ssr-price">₹${escapeHtml(p.price || '')}</span>
                   </a>
-                </li>
-              `).join('')}
-            </ul>
-          </section>
+                </article>
+              </li>
+            `).join('')}
+          </ul>
+        </section>
 
-          <section style="margin-bottom: 40px;">
-            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #1c1917;">Trending Fashion Picks</h2>
-            <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
-              ${curatedProducts.map(p => `
-                <li style="border: 1px solid #e7e5e4; border-radius: 12px; padding: 12px; background: #ffffff;">
-                  <article>
-                    <a href="/product/${p.id}" style="color: inherit; text-decoration: none;">
-                      <strong style="display: block; font-size: 13px; color: #1c1917; margin-bottom: 4px;">${escapeHtml(p.name)}</strong>
-                      <span style="font-size: 13px; font-weight: 700; color: #e11d48;">₹${escapeHtml(p.price || '')}</span>
-                    </a>
-                  </article>
-                </li>
-              `).join('')}
-            </ul>
-          </section>
-
-          <section style="margin-bottom: 40px;">
-            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #1c1917;">Editorial Style Guides & Stories</h2>
-            <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-              ${blogs.map(b => `
-                <li style="border: 1px solid #e7e5e4; border-radius: 12px; padding: 16px; background: #ffffff;">
-                  <article>
-                    <a href="/blog/${b.id}" style="color: inherit; text-decoration: none;">
-                      <strong style="display: block; font-size: 15px; color: #1c1917; margin-bottom: 6px;">${escapeHtml(b.title)}</strong>
-                    </a>
-                    <p style="font-size: 13px; color: #78716c; line-height: 1.4; margin-bottom: 8px;">${escapeHtml(truncate(b.excerpt || b.content || '', 120))}</p>
-                    <a href="/blog/${b.id}" style="font-size: 12px; font-weight: 700; color: #e11d48;">Read Styling Guide →</a>
-                  </article>
-                </li>
-              `).join('')}
-            </ul>
-          </section>
-
-          <nav style="padding-top: 24px; border-top: 1px solid #e7e5e4;">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1c1917;">Explore Renu Fashion Hub</h3>
-            <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 16px;">
-              <li><a href="/" style="color: #e11d48;">Home</a></li>
-              <li><a href="/blog" style="color: #e11d48;">Fashion Blog</a></li>
-              <li><a href="/about" style="color: #e11d48;">About Renu Agarwal</a></li>
-              <li><a href="/contact" style="color: #e11d48;">Contact Support</a></li>
-              <li><a href="/privacy-policy" style="color: #e11d48;">Privacy Policy</a></li>
-              <li><a href="/terms-of-service" style="color: #e11d48;">Terms of Service</a></li>
-              <li><a href="/disclaimer" style="color: #e11d48;">Disclaimer</a></li>
-              <li><a href="/affiliate-disclosure" style="color: #e11d48;">Affiliate Disclosure</a></li>
-              <li><a href="/cookie-policy" style="color: #e11d48;">Cookie Policy</a></li>
-            </ul>
-          </nav>
-        </div>
+        <section style="margin-bottom: 36px;">
+          <h2>Editorial Style Guides & Stories</h2>
+          <ul class="rf-ssr-grid">
+            ${blogs.map(b => `
+              <li class="rf-ssr-card">
+                <article>
+                  <a href="/blog/${b.id}">
+                    <strong>${escapeHtml(b.title)}</strong>
+                  </a>
+                  <p style="font-size: 13px; margin: 6px 0 10px 0;">${escapeHtml(truncate(b.excerpt || b.content || '', 120))}</p>
+                  <a href="/blog/${b.id}" style="font-size: 12px; font-weight: 700;">Read Styling Guide →</a>
+                </article>
+              </li>
+            `).join('')}
+          </ul>
+        </section>
       `;
-    }
 
-    // Rich SSR for Blog Index
-    if (pageName === "blog") {
+      richHtml = wrapInShell(innerHome);
+    } else if (pageName === "blog") {
       const blogs = await fetchPublishedBlogs(20);
 
-      richHtml = `
-        <div data-seo-fallback="1" style="max-width: 980px; margin: 0 auto; padding: 32px 20px;">
-          <nav aria-label="Breadcrumb" style="font-size: 12px; margin-bottom: 16px; color: #78716c;">
-            <a href="/" style="color: #e11d48;">Home</a> &gt;
-            <span>Fashion Blog</span>
-          </nav>
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #1c1917;">${escapeHtml(page.h1)}</h1>
-          <p style="font-size: 15px; color: #57534e; line-height: 1.6; margin-bottom: 32px;">${escapeHtml(page.body)}</p>
-
-          <section style="margin-bottom: 40px;">
-            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #1c1917;">All Published Stories (${blogs.length} Articles)</h2>
-            <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-              ${blogs.map(b => `
-                <li style="border: 1px solid #e7e5e4; border-radius: 12px; padding: 18px; background: #ffffff;">
-                  <article>
-                    <a href="/blog/${b.id}" style="color: inherit; text-decoration: none;">
-                      <strong style="display: block; font-size: 17px; color: #1c1917; margin-bottom: 6px;">${escapeHtml(b.title)}</strong>
-                    </a>
-                    <p style="font-size: 13px; color: #78716c; line-height: 1.5; margin-bottom: 12px;">${escapeHtml(truncate(b.excerpt || b.content || '', 180))}</p>
-                    <a href="/blog/${b.id}" style="font-size: 13px; font-weight: 700; color: #e11d48;">Read Full Article →</a>
-                  </article>
-                </li>
-              `).join('')}
-            </ul>
-          </section>
-
-          <section style="padding-top: 24px; border-top: 1px solid #e7e5e4;">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1c1917;">Browse Collections Featured in Our Stories</h3>
-            <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 12px;">
-              ${Object.values(CATEGORY_CONFIGS).map(c => `
-                <li><a href="/category/${c.slug}" style="display: inline-block; padding: 8px 16px; background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 9999px; text-decoration: none; font-size: 13px; font-weight: 600; color: #1c1917;">${escapeHtml(c.name)}</a></li>
-              `).join('')}
-            </ul>
-          </section>
+      const innerBlog = `
+        <div class="rf-ssr-breadcrumb">
+          <a href="/">Home</a> &gt; <span>Fashion Blog</span>
         </div>
+        <h1>${escapeHtml(page.h1)}</h1>
+        <p>${escapeHtml(page.body)}</p>
+
+        <section style="margin-bottom: 36px;">
+          <h2>All Published Stories (${blogs.length} Articles)</h2>
+          <ul class="rf-ssr-grid">
+            ${blogs.map(b => `
+              <li class="rf-ssr-card">
+                <article>
+                  <a href="/blog/${b.id}">
+                    <strong>${escapeHtml(b.title)}</strong>
+                  </a>
+                  <p style="font-size: 13px; margin: 6px 0 10px 0;">${escapeHtml(truncate(b.excerpt || b.content || '', 180))}</p>
+                  <a href="/blog/${b.id}" style="font-size: 13px; font-weight: 700;">Read Full Article →</a>
+                </article>
+              </li>
+            `).join('')}
+          </ul>
+        </section>
+
+        <section style="padding-top: 20px; border-top: 1px solid var(--rf-border);">
+          <h3>Browse Collections Featured in Our Stories</h3>
+          <ul class="rf-ssr-pill-list">
+            ${Object.values(CATEGORY_CONFIGS).map(c => `
+              <li><a href="/category/${c.slug}" class="rf-ssr-pill">${escapeHtml(c.name)}</a></li>
+            `).join('')}
+          </ul>
+        </section>
       `;
+
+      richHtml = wrapInShell(innerBlog);
+    } else {
+      const innerStatic = `
+        <div class="rf-ssr-breadcrumb">
+          <a href="/">Home</a> &gt; <span>${escapeHtml(page.h1)}</span>
+        </div>
+        <h1>${escapeHtml(page.h1)}</h1>
+        <p>${escapeHtml(page.body)}</p>
+        <div class="rf-ssr-banner">
+          <p>Curated Indian Women's Fashion & Styling Inspiration by Renu Agarwal</p>
+        </div>
+        <h2>Explore Collections</h2>
+        <ul class="rf-ssr-pill-list">
+          ${Object.values(CATEGORY_CONFIGS).map(c => `
+            <li><a href="/category/${c.slug}" class="rf-ssr-pill">${escapeHtml(c.name)}</a></li>
+          `).join('')}
+        </ul>
+      `;
+
+      richHtml = wrapInShell(innerStatic);
     }
 
     return {
@@ -782,49 +856,51 @@ async function buildPayload(type, id, pageName, slug) {
           ])
         ].join('\n');
 
-        const richHtml = `
-          <div data-seo-fallback="1" style="max-width: 860px; margin: 0 auto; padding: 32px 20px;">
-            <nav aria-label="Breadcrumb" style="font-size: 12px; margin-bottom: 16px; color: #78716c;">
-              <a href="/" style="color: #e11d48;">Home</a> &gt;
-              <a href="/blog" style="color: #e11d48;">Fashion Blog</a> &gt;
-              <span>${escapeHtml(stripHtml(data.title || title))}</span>
-            </nav>
-            <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #1c1917;">${escapeHtml(stripHtml(data.title || title))}</h1>
-            <p style="font-size: 15px; color: #57534e; line-height: 1.7; margin-bottom: 24px;">${escapeHtml(truncate(data.content || data.excerpt || description, 600))}</p>
+        const innerBlogDetail = `
+          <div class="rf-ssr-breadcrumb">
+            <a href="/">Home</a> &gt;
+            <a href="/blog">Fashion Blog</a> &gt;
+            <span>${escapeHtml(stripHtml(data.title || title))}</span>
+          </div>
+          <h1>${escapeHtml(stripHtml(data.title || title))}</h1>
+          <p style="font-size: 15px; line-height: 1.7; margin-bottom: 24px;">${escapeHtml(truncate(data.content || data.excerpt || description, 600))}</p>
 
-            <div style="background: #f5f5f4; border-radius: 12px; padding: 16px; margin: 32px 0;">
-              <p style="margin: 0; font-size: 14px; color: #1c1917;">
-                Explore designs featured in this guide:
-                <a href="/category/${catConf.slug}" style="color: #e11d48; font-weight: 700;">${escapeHtml(catConf.name)} Collection</a>.
-              </p>
-            </div>
+          <div class="rf-ssr-banner">
+            <p>
+              Explore designs featured in this guide:
+              <a href="/category/${catConf.slug}" style="color: #e11d48; font-weight: 700;">${escapeHtml(catConf.name)} Collection</a>.
+            </p>
+          </div>
 
-            ${contextualProducts.length > 0 ? `
-              <section style="margin: 32px 0;">
-                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px; color: #1c1917;">Related Outfits & Styling Picks</h2>
-                <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
-                  ${contextualProducts.map(p => `
-                    <li style="border: 1px solid #e7e5e4; border-radius: 12px; padding: 12px; background: #ffffff;">
-                      <a href="/product/${p.id}" style="text-decoration: none; color: inherit;">
-                        <strong style="display: block; font-size: 13px; color: #1c1917; margin-bottom: 4px;">${escapeHtml(p.name)}</strong>
-                        <span style="font-size: 13px; font-weight: 700; color: #e11d48;">₹${escapeHtml(p.price || '')}</span>
+          ${contextualProducts.length > 0 ? `
+            <section style="margin: 32px 0;">
+              <h2>Related Outfits &amp; Styling Picks</h2>
+              <ul class="rf-ssr-grid">
+                ${contextualProducts.map(p => `
+                  <li class="rf-ssr-card">
+                    <article>
+                      <a href="/product/${p.id}">
+                        <strong>${escapeHtml(p.name)}</strong>
+                        <span class="rf-ssr-price">₹${escapeHtml(p.price || '')}</span>
                       </a>
-                    </li>
-                  `).join('')}
-                </ul>
-              </section>
-            ` : ''}
-
-            <nav style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #e7e5e4;">
-              <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1c1917;">More Fashion Guides</h3>
-              <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
-                ${otherBlogs.filter(b => String(b.id) !== cleanId).slice(0, 3).map(b => `
-                  <li><a href="/blog/${b.id}" style="color: #e11d48; font-weight: 600; font-size: 14px;">${escapeHtml(b.title)}</a></li>
+                    </article>
+                  </li>
                 `).join('')}
               </ul>
-            </nav>
-          </div>
+            </section>
+          ` : ''}
+
+          <nav style="margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--rf-border);">
+            <h3>More Fashion Guides</h3>
+            <ul class="rf-ssr-pill-list">
+              ${otherBlogs.filter(b => String(b.id) !== cleanId).slice(0, 3).map(b => `
+                <li><a href="/blog/${b.id}" class="rf-ssr-pill">${escapeHtml(b.title)}</a></li>
+              `).join('')}
+            </ul>
+          </nav>
         `;
+
+        const richHtml = wrapInShell(innerBlogDetail);
 
         return {
           title,
@@ -876,42 +952,44 @@ async function buildPayload(type, id, pageName, slug) {
           ])
         ].join('\n');
 
-        const richHtml = `
-          <div data-seo-fallback="1" style="max-width: 860px; margin: 0 auto; padding: 32px 20px;">
-            <nav aria-label="Breadcrumb" style="font-size: 12px; margin-bottom: 16px; color: #78716c;">
-              <a href="/" style="color: #e11d48;">Home</a> &gt;
-              <a href="/category/${catConf.slug}" style="color: #e11d48;">${escapeHtml(catConf.name)}</a> &gt;
-              <span>${escapeHtml(data.name)}</span>
-            </nav>
-            <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #1c1917;">${escapeHtml(data.name)}</h1>
-            <p style="font-size: 20px; font-weight: 700; color: #e11d48; margin-bottom: 16px;">₹${escapeHtml(data.price || '')}</p>
-            <p style="font-size: 15px; color: #57534e; line-height: 1.6; margin-bottom: 24px;">${escapeHtml(truncate(data.description || description, 600))}</p>
-
-            <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 14px 18px; margin-bottom: 32px;">
-              <p style="margin: 0; font-size: 13px; color: #881337;">
-                Part of our <a href="/category/${catConf.slug}" style="color: #e11d48; font-weight: 700;">${escapeHtml(catConf.name)} Collection</a>.
-                Read Renu Agarwal's styling guide:
-                <a href="/blog/${catConf.blogId}" style="color: #e11d48; font-weight: 700; text-decoration: underline;">${escapeHtml(catConf.blogTitle)}</a>.
-              </p>
-            </div>
-
-            ${relatedProducts.length > 0 ? `
-              <section style="margin: 32px 0;">
-                <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 14px; color: #1c1917;">You May Also Like in ${escapeHtml(catConf.name)}</h2>
-                <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px;">
-                  ${relatedProducts.map(p => `
-                    <li style="border: 1px solid #e7e5e4; border-radius: 10px; padding: 10px; background: #ffffff;">
-                      <a href="/product/${p.id}" style="text-decoration: none; color: inherit;">
-                        <strong style="display: block; font-size: 12px; color: #1c1917; margin-bottom: 2px;">${escapeHtml(p.name)}</strong>
-                        <span style="font-size: 12px; font-weight: 700; color: #e11d48;">₹${escapeHtml(p.price || '')}</span>
-                      </a>
-                    </li>
-                  `).join('')}
-                </ul>
-              </section>
-            ` : ''}
+        const innerProductDetail = `
+          <div class="rf-ssr-breadcrumb">
+            <a href="/">Home</a> &gt;
+            <a href="/category/${catConf.slug}">${escapeHtml(catConf.name)}</a> &gt;
+            <span>${escapeHtml(data.name)}</span>
           </div>
+          <h1>${escapeHtml(data.name)}</h1>
+          <p class="rf-ssr-price" style="font-size: 22px; margin-bottom: 16px;">₹${escapeHtml(data.price || '')}</p>
+          <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px;">${escapeHtml(truncate(data.description || description, 600))}</p>
+
+          <div class="rf-ssr-banner">
+            <p>
+              Part of our <a href="/category/${catConf.slug}" style="color: #e11d48; font-weight: 700;">${escapeHtml(catConf.name)} Collection</a>.
+              Read Renu Agarwal's styling guide:
+              <a href="/blog/${catConf.blogId}" style="color: #e11d48; font-weight: 700; text-decoration: underline;">${escapeHtml(catConf.blogTitle)}</a>.
+            </p>
+          </div>
+
+          ${relatedProducts.length > 0 ? `
+            <section style="margin: 32px 0;">
+              <h2>You May Also Like in ${escapeHtml(catConf.name)}</h2>
+              <ul class="rf-ssr-grid">
+                ${relatedProducts.map(p => `
+                  <li class="rf-ssr-card">
+                    <article>
+                      <a href="/product/${p.id}">
+                        <strong>${escapeHtml(p.name)}</strong>
+                        <span class="rf-ssr-price">₹${escapeHtml(p.price || '')}</span>
+                      </a>
+                    </article>
+                  </li>
+                `).join('')}
+              </ul>
+            </section>
+          ` : ''}
         `;
+
+        const richHtml = wrapInShell(innerProductDetail);
 
         return {
           title,
@@ -950,13 +1028,19 @@ async function buildPayload(type, id, pageName, slug) {
           ])
         ].join('\n');
 
-        const richHtml = `
-          <div data-seo-fallback="1" style="max-width: 720px; margin: 0 auto; padding: 32px 20px;">
-            <h1>${escapeHtml(title.replace(" | Renu Fashion Hub", ""))}</h1>
-            <p>${escapeHtml(truncate(data.caption || description, 400))}</p>
-            <p><a href="/">Return to Homepage</a> • <a href="/blog">Fashion Blog</a></p>
+        const innerPostDetail = `
+          <div class="rf-ssr-breadcrumb">
+            <a href="/">Home</a> &gt; <span>Fashion Post</span>
+          </div>
+          <h1>${escapeHtml(title.replace(" | Renu Fashion Hub", ""))}</h1>
+          <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px;">${escapeHtml(truncate(data.caption || description, 400))}</p>
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <a href="/" class="rf-ssr-pill" style="background: #e11d48; color: #ffffff;">Return to Homepage</a>
+            <a href="/blog" class="rf-ssr-pill">Fashion Blog</a>
           </div>
         `;
+
+        const richHtml = wrapInShell(innerPostDetail);
 
         return {
           title,

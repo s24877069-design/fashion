@@ -42,25 +42,41 @@ function firstMatch(html, regex) {
 }
 
 function buildRootBlock(html, is404 = false) {
-  if (is404) {
-    return `<div id="root"><div data-seo-fallback="1" style="max-width: 680px; margin: 48px auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; color: #1c1917;">
-      <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #881337;">404 — Page Not Found</h1>
-      <p style="font-size: 16px; color: #57534e; margin-bottom: 24px; line-height: 1.6;">The page you are looking for does not exist, has been removed, or is temporarily unavailable.</p>
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px;">
-        <a href="${BASE_URL}/" style="display: inline-block; padding: 12px 24px; background: #e11d48; color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 14px;">Return to Homepage</a>
-        <a href="${BASE_URL}/blog" style="display: inline-block; padding: 12px 24px; background: #f5f5f4; color: #1c1917; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 14px; border: 1px solid #e7e5e4;">Explore Fashion Blog</a>
-        <a href="${BASE_URL}/contact" style="display: inline-block; padding: 12px 24px; background: #f5f5f4; color: #1c1917; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 14px; border: 1px solid #e7e5e4;">Contact Support</a>
-      </div>
-      <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1c1917;">Browse Popular Collections</h2>
-      <ul style="list-style: none; padding: 0; margin: 0 auto; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-        ${CATEGORY_LINKS.map(link => `<li><a href="${link.href}" style="color: #e11d48; text-decoration: underline; font-weight: 500;">${escapeHtml(link.label)}</a></li>`).join('')}
-      </ul>
-    </div></div>`;
-  }
-
   const noscriptMatch = html.match(/<noscript>([\s\S]*?)<\/noscript>/i);
   if (noscriptMatch && noscriptMatch[1].includes('data-seo-fallback="1"')) {
     return `<div id="root">${noscriptMatch[1]}</div>`;
+  }
+
+  if (is404) {
+    return `<div id="root">
+      <div data-seo-fallback="1" class="rf-ssr-shell">
+        <header class="rf-ssr-header">
+          <div class="rf-ssr-brand">
+            <a href="/" class="rf-ssr-logo">RENU FASHION HUB</a>
+            <span class="rf-ssr-tagline">HAUTE COUTURE &amp; STYLING</span>
+          </div>
+          <nav class="rf-ssr-nav">
+            <a href="/">Home</a>
+            <a href="/blog">Fashion Blog</a>
+            <a href="/contact">Contact</a>
+          </nav>
+        </header>
+        <main class="rf-ssr-main rf-ssr-center">
+          <div class="rf-ssr-card rf-ssr-auth-card">
+            <h1 style="color: #9e1f3b;">404 — Page Not Found</h1>
+            <p>The page you are looking for does not exist, has been removed, or is temporarily unavailable.</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 24px 0;">
+              <a href="${BASE_URL}/" class="rf-ssr-pill" style="background: #e11d48; color: #ffffff;">Return to Homepage</a>
+              <a href="${BASE_URL}/blog" class="rf-ssr-pill">Explore Fashion Blog</a>
+            </div>
+            <h2>Popular Collections</h2>
+            <ul class="rf-ssr-pill-list" style="justify-content: center;">
+              ${CATEGORY_LINKS.map(link => `<li><a href="${link.href}" class="rf-ssr-pill">${escapeHtml(link.label)}</a></li>`).join('')}
+            </ul>
+          </div>
+        </main>
+      </div>
+    </div>`;
   }
 
   const noscript = firstMatch(html, /<noscript>([\s\S]*?)<\/noscript>/i);
@@ -73,28 +89,54 @@ function buildRootBlock(html, is404 = false) {
     .map((text) => String(text || '').trim())
     .filter((text, index, all) => text && all.indexOf(text) === index);
 
-  return `<div id="root"><div data-seo-fallback="1">
-      <h1>${h1}</h1>
-      ${paragraphs.map((p) => `<p>${p}</p>`).join('\n      ')}
-      <p>Renu Fashion Hub is curated by fashion creator Renu Agarwal. Every saree, kurti,
-      lehenga, western dress and jewellery pick on this page is hand-selected with styling
-      notes, occasion ideas, fabric guidance and honest shopping advice for Indian women.
-      Browse the sections below to find the right outfit for weddings, festivals, office
-      wear and everyday styling.</p>
-      <h2>Shop by category</h2>
-      <ul>${CATEGORY_LINKS.map(
-        (link) => `<li><a href="${link.href}">${escapeHtml(link.label)}</a></li>`
-      ).join('')}</ul>
-      <h2>Explore Renu Fashion Hub</h2>
-      <ul>${NAV_LINKS.map(
-        (link) => `<li><a href="${link.href}">${escapeHtml(link.label)}</a></li>`
-      ).join('')}</ul>
-      <p>Read the latest styling guides on the <a href="${BASE_URL}/blog">Renu Fashion Hub
-      fashion blog</a>, learn more <a href="${BASE_URL}/about">about Renu Agarwal</a>, or
-      <a href="${BASE_URL}/contact">contact the team</a> for styling and collaboration
-      enquiries.</p>
-      <p>${escapeHtml(title)}</p>
-    </div></div>`;
+  return `<div id="root">
+    <div data-seo-fallback="1" class="rf-ssr-shell">
+      <div class="rf-ssr-topbar">
+        <div class="rf-ssr-topbar-inner">
+          <span>✨ Curated Indian Haute Couture &amp; Styling Guides by Renu Agarwal · Verified Boutique Links</span>
+          <a href="https://wa.me/917248763036" target="_blank" rel="noopener noreferrer">Personal Style Assist: +91 72487 63036</a>
+        </div>
+      </div>
+      <header class="rf-ssr-header">
+        <div class="rf-ssr-brand">
+          <a href="/" class="rf-ssr-logo">RENU FASHION HUB</a>
+          <span class="rf-ssr-tagline">HAUTE COUTURE &amp; STYLING</span>
+        </div>
+        <nav class="rf-ssr-nav" aria-label="Main Navigation">
+          <a href="/">Home</a>
+          <a href="/category/sarees">Sarees</a>
+          <a href="/category/kurtas">Kurtis &amp; Suits</a>
+          <a href="/category/lehengas">Lehengas</a>
+          <a href="/category/dresses">Dresses</a>
+          <a href="/category/jewelry">Jewellery</a>
+          <a href="/blog">Fashion Blog</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+      <main class="rf-ssr-main">
+        <h1>${escapeHtml(h1)}</h1>
+        ${paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('\n        ')}
+        <div class="rf-ssr-banner">
+          <p>Curated Indian Women's Fashion &amp; Styling Inspiration by Renu Agarwal</p>
+        </div>
+        <h2>Shop by Category</h2>
+        <ul class="rf-ssr-pill-list">
+          ${CATEGORY_LINKS.map(link => `<li><a href="${link.href}" class="rf-ssr-pill">${escapeHtml(link.label)}</a></li>`).join('')}
+        </ul>
+        <h2>Explore Renu Fashion Hub</h2>
+        <ul class="rf-ssr-pill-list">
+          ${NAV_LINKS.map(link => `<li><a href="${link.href}" class="rf-ssr-pill">${escapeHtml(link.label)}</a></li>`).join('')}
+        </ul>
+      </main>
+      <footer class="rf-ssr-footer">
+        <ul class="rf-ssr-footer-links">
+          ${NAV_LINKS.map(link => `<li><a href="${link.href}">${escapeHtml(link.label)}</a></li>`).join('')}
+        </ul>
+        <p style="margin: 0; font-size: 11px; opacity: 0.8;">© 2026 Renu Fashion Hub · Curated by Renu Agarwal. All rights reserved.</p>
+      </footer>
+    </div>
+  </div>`;
 }
 
 export default async function handler(req, res) {

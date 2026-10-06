@@ -5594,8 +5594,7 @@ export default function App() {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const isDirectAdminOrLogin = typeof window !== 'undefined' && (window.location.pathname === '/admin' || window.location.pathname === '/login');
-  const [showSplash, setShowSplash] = useState(!isDirectAdminOrLogin);
+  const [showSplash, setShowSplash] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isProductsLoaded, setIsProductsLoaded] = useState(false);
   const [isPostsLoaded, setIsPostsLoaded] = useState(false);
@@ -5906,14 +5905,6 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
-
-  // Splash Screen Timer
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3000);
-    return () => clearTimeout(timer);
   }, []);
 
   // Load data from Supabase backend on mount and when admin status changes
