@@ -56,7 +56,12 @@ export default async function handler(req, res) {
     try {
       if (fs.existsSync(MESSAGES_FILE_PATH)) {
         let currentMessages = JSON.parse(fs.readFileSync(MESSAGES_FILE_PATH, "utf8"));
-        currentMessages = currentMessages.filter(m => String(m.id) !== String(idToUse));
+        currentMessages = currentMessages.filter(m => {
+          if (m.id && String(m.id) === String(idToUse)) return false;
+          if (m.timestamp && String(m.timestamp) === String(idToUse)) return false;
+          if (m.email && String(m.email) === String(idToUse)) return false;
+          return true;
+        });
         try {
           fs.writeFileSync(MESSAGES_FILE_PATH, JSON.stringify(currentMessages, null, 2), "utf8");
         } catch (fErr) {
@@ -79,8 +84,9 @@ export default async function handler(req, res) {
         .select("*")
         .order("id", { ascending: false });
       
-      if (!error) {
-        return res.status(200).json(data || []);
+      if (!error && Array.isArray(data)) {
+        const normalized = data.map((m, idx) => ({ id: m.id || (1782274718000 + idx), ...m }));
+        return res.status(200).json(normalized);
       }
     } catch (err) {
       // Fallback
@@ -89,11 +95,13 @@ export default async function handler(req, res) {
     try {
       const tmpPath = "/tmp/messages.json";
       if (fs.existsSync(tmpPath)) {
-        const data = fs.readFileSync(tmpPath, "utf8");
-        return res.status(200).json(JSON.parse(data));
+        const raw = JSON.parse(fs.readFileSync(tmpPath, "utf8"));
+        const normalized = Array.isArray(raw) ? raw.map((m, idx) => ({ id: m.id || (1782274718000 + idx), ...m })) : [];
+        return res.status(200).json(normalized);
       } else if (fs.existsSync(MESSAGES_FILE_PATH)) {
-        const data = fs.readFileSync(MESSAGES_FILE_PATH, "utf8");
-        return res.status(200).json(JSON.parse(data));
+        const raw = JSON.parse(fs.readFileSync(MESSAGES_FILE_PATH, "utf8"));
+        const normalized = Array.isArray(raw) ? raw.map((m, idx) => ({ id: m.id || (1782274718000 + idx), ...m })) : [];
+        return res.status(200).json(normalized);
       }
     } catch (err) {
       // Ignore

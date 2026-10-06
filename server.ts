@@ -740,12 +740,19 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/messages/:id", async (req, res) => {
+  const handleMessageDelete = async (req: any, res: any) => {
     if (!requireAdmin(req, res)) return;
 
-    const id = parseInt(req.params.id, 10);
+    const targetId = req.params.id || req.query.id || req.body?.id;
+    if (!targetId) {
+      return res.status(400).json({ error: "Missing message ID" });
+    }
+
+    const messageId = parseInt(targetId as string, 10);
+    const idToUse = isNaN(messageId) ? targetId : messageId;
+
     try {
-      const { error } = await supabase.from("messages").delete().eq("id", id);
+      const { error } = await supabase.from("messages").delete().eq("id", idToUse);
       if (!error) {
         return res.json({ success: true, source: "supabase" });
       }
@@ -756,14 +763,22 @@ async function startServer() {
     try {
       if (fs.existsSync(MESSAGES_FILE_PATH)) {
         let currentMessages = JSON.parse(fs.readFileSync(MESSAGES_FILE_PATH, "utf8"));
-        currentMessages = currentMessages.filter((m: any) => m.id !== id);
+        currentMessages = currentMessages.filter((m: any) => {
+          if (m.id && String(m.id) === String(idToUse)) return false;
+          if (m.timestamp && String(m.timestamp) === String(idToUse)) return false;
+          if (m.email && String(m.email) === String(idToUse)) return false;
+          return true;
+        });
         fs.writeFileSync(MESSAGES_FILE_PATH, JSON.stringify(currentMessages, null, 2), "utf8");
       }
       return res.json({ success: true, source: "file" });
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
-  });
+  };
+
+  app.delete("/api/messages/:id", handleMessageDelete);
+  app.delete("/api/messages", handleMessageDelete);
 
   // Secure admin-sync proxy to keep Supabase and Firestore aligned
   app.post("/api/admin-sync", async (req, res) => {

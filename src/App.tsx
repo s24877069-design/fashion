@@ -6875,15 +6875,30 @@ export default function App() {
     }
   };
 
-  const handleDeleteMessage = async (id: number) => {
+  const handleDeleteMessage = async (id: any) => {
     if (!isAdminUser) return;
     try {
-      const response = await fetch(`/api/messages/${id}`, {
+      // 1. First try query param /api/messages?id=... (works natively on Vercel)
+      let response = await fetch(`/api/messages?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
         credentials: "include"
       });
+
+      // 2. If that fails, try path /api/messages/:id as fallback
+      if (!response.ok) {
+        response = await fetch(`/api/messages/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+      }
+
       if (response.ok) {
-        setMessages(prev => prev.filter(m => String(m.id) !== String(id)));
+        setMessages(prev => prev.filter(m => {
+          if (m.id && String(m.id) === String(id)) return false;
+          if (m.timestamp && String(m.timestamp) === String(id)) return false;
+          if (m.email && String(m.email) === String(id)) return false;
+          return true;
+        }));
       } else {
         const errPayload = await response.json().catch(() => null);
         throw new Error(errPayload?.error || `Delete failed with status ${response.status}`);
@@ -7010,7 +7025,7 @@ export default function App() {
           ) : (
           <div className="pb-32">
         {/* Admin Header */}
-        <div className={`sticky top-0 z-50 ${theme === "dark" ? "bg-[#1C1A19]/95 border-white/10" : "bg-white/95 border-black/10"} md:backdrop-blur-xl border-b px-6 py-4`}>
+        <div className={`sticky top-0 z-50 ${theme === "dark" ? "bg-[#1C1A19] border-stone-800" : "bg-white border-stone-200 shadow-xs"} border-b px-6 py-4`}>
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
@@ -7018,7 +7033,7 @@ export default function App() {
               </div>
               <div>
                 <h2 className="text-lg font-bold">Admin Panel</h2>
-                <p className={`text-[10px] ${theme === "dark" ? "text-white/40" : "text-black/40"} uppercase tracking-widest`}>Control Center</p>
+                <p className={`text-[10px] ${theme === "dark" ? "text-stone-400" : "text-stone-500"} uppercase tracking-widest font-bold`}>Control Center</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -7032,16 +7047,16 @@ export default function App() {
                   setIsAdminUser(false);
                   handleNavigate("/login");
                 }}
-                className={`p-2 rounded-xl ${theme === "dark" ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" : "bg-red-500/5 border-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"} transition-all border`}
+                className={`p-2 rounded-xl ${theme === "dark" ? "bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white" : "bg-red-50 border-red-200 text-red-600 hover:bg-red-500 hover:text-white"} transition-all border`}
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => handleNavigate("/")}
-                className={`p-2 rounded-xl ${theme === "dark" ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/10"} transition-colors border`}
+                className={`p-2 rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-200" : "bg-stone-100 hover:bg-stone-200 border-stone-200 text-stone-800"} transition-colors border`}
               >
-                <X className={`w-5 h-5 ${theme === "dark" ? "text-white/70" : "text-black/70"}`} />
+                <X className={`w-5 h-5 ${theme === "dark" ? "text-stone-200" : "text-stone-800"}`} />
               </button>
             </div>
           </div>
@@ -7062,17 +7077,17 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className={`relative w-full max-w-sm p-8 rounded-3xl ${theme === "dark" ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"} border shadow-2xl`}
+                className={`relative w-full max-w-sm p-8 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100" : "bg-white border-stone-200 text-stone-900"} border shadow-2xl`}
               >
                 <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
                   <Trash2 className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className={`text-xl font-bold mb-2 text-center ${theme === "dark" ? "text-white" : "text-black"}`}>Delete {itemToDelete.type === 'post' ? 'Post' : itemToDelete.type === 'product' ? 'Product' : itemToDelete.type === 'message' ? 'Message' : 'Blog'}?</h3>
-                <p className={`${theme === "dark" ? "text-white/60" : "text-black/60"} text-sm mb-8 text-center`}>This action cannot be undone. It will be permanently removed.</p>
+                <h3 className={`text-xl font-bold mb-2 text-center ${theme === "dark" ? "text-stone-100" : "text-stone-900"}`}>Delete {itemToDelete.type === 'post' ? 'Post' : itemToDelete.type === 'product' ? 'Product' : itemToDelete.type === 'message' ? 'Message' : 'Blog'}?</h3>
+                <p className={`${theme === "dark" ? "text-stone-400" : "text-stone-600"} text-sm mb-8 text-center`}>This action cannot be undone. It will be permanently removed.</p>
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setItemToDelete(null)}
-                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} transition-colors`}
+                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700" : "bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300"} border transition-colors`}
                   >
                     Cancel
                   </button>
@@ -7123,7 +7138,7 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.95, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className={`relative w-full max-w-md p-6 rounded-3xl ${theme === "dark" ? "bg-[#1C1A19] border-white/10" : "bg-white border-black/10"} border shadow-2xl`}
+                className={`relative w-full max-w-md p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100" : "bg-white border-stone-200 text-stone-900"} border shadow-2xl`}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h3 className={`text-sm font-black uppercase tracking-wider flex items-center gap-2 ${theme === "dark" ? "text-rose-400" : "text-rose-600"}`}>
@@ -7142,7 +7157,7 @@ export default function App() {
                   <button 
                     type="button"
                     onClick={() => setLinkEditorModal(prev => ({ ...prev, isOpen: false }))}
-                    className={`text-xs font-bold px-2 py-1 rounded-md ${theme === "dark" ? "hover:bg-white/5 text-white/40" : "hover:bg-black/5 text-black/45"}`}
+                    className={`text-xs font-bold px-2 py-1 rounded-md ${theme === "dark" ? "hover:bg-stone-800 text-stone-400" : "hover:bg-stone-100 text-stone-600"}`}
                   >
                     Close
                   </button>
@@ -7155,7 +7170,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div>
-                      <label className={`block text-[10px] font-black uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1.5`}>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1.5`}>
                         {linkEditorModal.type === "link" ? "Enter Destination URL *" : "Enter Email Address *"}
                       </label>
                       <input 
@@ -7164,7 +7179,7 @@ export default function App() {
                         value={linkEditorModal.value}
                         onChange={(e) => setLinkEditorModal(prev => ({ ...prev, value: e.target.value, error: "" }))}
                         placeholder={linkEditorModal.type === "link" ? "https://example.com" : "hello@example.com"}
-                        className={`w-full ${theme === "dark" ? "bg-stone-900 border-white/10 text-white placeholder-white/30" : "bg-stone-50 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-sm font-semibold`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-sm font-semibold`}
                       />
                       {linkEditorModal.error && (
                         <p className="text-red-500 text-xs font-bold mt-1.5 animate-pulse">
@@ -7178,7 +7193,7 @@ export default function App() {
                     <button 
                       type="button"
                       onClick={() => setLinkEditorModal(prev => ({ ...prev, isOpen: false }))}
-                      className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} transition-colors`}
+                      className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-wider ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700" : "bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300"} border transition-colors`}
                     >
                       Cancel
                     </button>
@@ -7212,40 +7227,40 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className={`relative w-full max-w-md p-6 rounded-3xl ${theme === "dark" ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"} border shadow-2xl space-y-4`}
+                className={`relative w-full max-w-md p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100" : "bg-white border-stone-200 text-stone-900"} border shadow-2xl space-y-4`}
               >
-                <h3 className={`text-xl font-bold mb-4 ${theme === "dark" ? "text-white" : "text-black"}`}>Edit Product</h3>
+                <h3 className={`text-xl font-bold mb-4 ${theme === "dark" ? "text-stone-100" : "text-stone-900"}`}>Edit Product</h3>
                 
                 <div className="space-y-3">
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Product Name</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Product Name</label>
                     <input 
                       type="text" 
                       value={editingProduct.name}
                       onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-purple-500/50 transition-colors text-sm`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                     />
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Description</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Description</label>
                     <textarea 
                       value={editingProduct.description || ""}
                       onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
                       rows={3}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-purple-500/50 transition-colors text-sm resize-none`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm resize-none font-medium`}
                       placeholder="Enter product description..."
                     />
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Category</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Category</label>
                     <div className="flex gap-2">
                       <input 
                         type="text" 
                         value={editingProduct.category || ""}
                         onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
-                        className={`flex-1 ${theme === "dark" ? "bg-[#222] border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-purple-500/50 transition-colors text-sm`}
+                        className={`flex-1 ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                         placeholder="e.g. Sarees, Kurtas, Lehengas..."
                       />
                       <button 
@@ -7254,7 +7269,7 @@ export default function App() {
                           const autoCat = autoDetectCategory(editingProduct.name, editingProduct.description || "");
                           setEditingProduct({...editingProduct, category: autoCat});
                         }}
-                        className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} border ${theme === "dark" ? "border-white/10" : "border-black/10"}`}
+                        className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-600" : "bg-stone-100 hover:bg-stone-200 text-stone-900 border-stone-300 shadow-2xs"} border`}
                         title="Auto-detect Category"
                       >
                         Detect ✨
@@ -7264,34 +7279,34 @@ export default function App() {
                   
                   <div className="flex flex-col sm:flex-row gap-3">
                     <div className="w-full sm:w-1/3">
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Price</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Price</label>
                       <input 
                         type="text" 
                         value={editingProduct.price}
                         onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-purple-500/50 transition-colors text-sm`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                       />
                     </div>
                     <div className="flex-1">
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Buy URL</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Buy URL</label>
                       <input 
                         type="text" 
                         value={editingProduct.buyUrl}
                         onChange={(e) => setEditingProduct({...editingProduct, buyUrl: e.target.value})}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-purple-500/50 transition-colors text-sm`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Product Image</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Product Image</label>
                     <div className="flex gap-3 items-center">
-                      <MediaImage url={editingProduct.url} className="w-16 h-16 rounded-xl object-cover border border-white/10" />
+                      <MediaImage url={editingProduct.url} className="w-16 h-16 rounded-xl object-cover border border-stone-300 dark:border-stone-700" />
                       <button 
                         onClick={() => productFileInputRef.current?.click()}
-                        className={`flex-1 py-3 rounded-xl ${theme === "dark" ? "bg-white/5 border-white/20 hover:border-orange-500/50 text-white/60" : "bg-black/5 border-black/20 hover:border-orange-500/50 text-black/60"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs`}
+                        className={`flex-1 py-3 rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-200" : "bg-stone-50 hover:bg-stone-100 border-stone-300 text-stone-800 shadow-2xs"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs font-bold`}
                       >
-                        <ImageIcon className="w-4 h-4" />
+                        <ImageIcon className="w-4 h-4 text-rose-500" />
                         Change Image
                       </button>
                     </div>
@@ -7301,7 +7316,7 @@ export default function App() {
                 <div className="flex gap-3 pt-4">
                   <button 
                     onClick={() => setEditingProduct(null)}
-                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} transition-colors`}
+                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700" : "bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300"} border transition-colors`}
                   >
                     Cancel
                   </button>
@@ -7310,7 +7325,7 @@ export default function App() {
                       setTempProducts(tempProducts.map(p => p.id === editingProduct.id ? editingProduct : p));
                       setEditingProduct(null);
                     }}
-                    className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-colors"
+                    className="flex-1 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm transition-colors shadow-md shadow-rose-600/20"
                   >
                     Apply Changes
                   </button>
@@ -7335,7 +7350,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className={`relative w-full max-w-lg p-6 rounded-3xl ${theme === "dark" ? "bg-[#111] border-white/10" : "bg-white border-black/10"} border shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto z-10`}
+                className={`relative w-full max-w-lg p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100" : "bg-white border-stone-200 text-stone-900"} border shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto z-10`}
               >
                 <div className="flex justify-between items-center pb-2 border-b border-rose-500/10">
                   <h3 className={`text-lg font-serif font-black uppercase tracking-wide ${theme === "dark" ? "text-rose-100" : "text-rose-950"}`}>Edit Blog Post</h3>
@@ -7349,83 +7364,83 @@ export default function App() {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Blog Title</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Blog Title</label>
                     <input 
                       type="text" 
                       value={editingBlog.title}
                       onChange={(e) => setEditingBlog({...editingBlog, title: e.target.value})}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm font-semibold`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-semibold`}
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Category</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Category</label>
                       <input 
                         type="text" 
                         value={editingBlog.category || ""}
                         onChange={(e) => setEditingBlog({...editingBlog, category: e.target.value})}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                         placeholder="e.g. Sarees, Tips..."
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Formatted Date</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Formatted Date</label>
                       <input 
                         type="text" 
                         value={editingBlog.timestamp ? new Date(editingBlog.timestamp).toLocaleDateString() : ""}
                         disabled
-                        className={`w-full ${theme === "dark" ? "bg-white/2 border-white/5 text-stone-500" : "bg-black/5 border-black/5 text-stone-400"} border rounded-xl px-4 py-2.5 text-sm cursor-not-allowed`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950/50 border-stone-800 text-stone-400" : "bg-stone-100 border-stone-300 text-stone-600"} border rounded-xl px-4 py-2.5 text-sm cursor-not-allowed font-medium`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Excerpt / Summary</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Excerpt / Summary</label>
                     <textarea 
                       value={editingBlog.excerpt || ""}
                       onChange={(e) => setEditingBlog({...editingBlog, excerpt: e.target.value})}
                       rows={2}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm resize-none`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm resize-none font-medium`}
                     />
                   </div>
 
                   {/* SEO Configuration Block */}
-                  <div className={`p-4 rounded-xl border ${theme === "dark" ? "bg-white/[0.02] border-white/10" : "bg-stone-50 border-stone-200"} space-y-4`}>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-500/90 flex items-center gap-1.5">
+                  <div className={`p-4 rounded-xl border ${theme === "dark" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"} space-y-4`}>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-rose-500" />
                       SEO Optimization Settings
                     </h4>
                     
                     <div>
-                      <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>SEO Title *</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>SEO Title *</label>
                       <input 
                         type="text" 
                         value={editingBlog.seoTitle || ""}
                         onChange={(e) => setEditingBlog({...editingBlog, seoTitle: e.target.value})}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium`}
                         placeholder="Latest Fashion Trends 2026..."
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Meta Description *</label>
+                        <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Meta Description *</label>
                         <textarea 
                           value={editingBlog.metaDescription || ""}
                           onChange={(e) => setEditingBlog({...editingBlog, metaDescription: e.target.value})}
                           rows={2}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold resize-none`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium resize-none`}
                           placeholder="Meta description content..."
                         />
                       </div>
                       <div>
-                        <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Focus Keyword *</label>
+                        <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Focus Keyword *</label>
                         <textarea 
                           value={editingBlog.focusKeyword || ""}
                           onChange={(e) => setEditingBlog({...editingBlog, focusKeyword: e.target.value})}
                           rows={2}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold resize-none`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium resize-none`}
                           placeholder="Focus keyword content..."
                         />
                       </div>
@@ -7433,10 +7448,10 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`}>Article Content *</label>
-                    <div className={`rounded-xl border ${theme === "dark" ? "bg-stone-900 border-white/10" : "bg-stone-50 border-black/10"} overflow-hidden`}>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Article Content *</label>
+                    <div className={`rounded-xl border ${theme === "dark" ? "bg-stone-950 border-stone-700" : "bg-stone-50 border-stone-300"} overflow-hidden`}>
                       {/* Edit Editor Toolbar */}
-                      <div className={`p-1.5 border-b flex flex-wrap items-center gap-1.5 ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-stone-100 border-black/10"}`}>
+                      <div className={`p-1.5 border-b flex flex-wrap items-center gap-1.5 ${theme === "dark" ? "bg-stone-900 border-stone-700" : "bg-stone-100 border-stone-300"}`}>
                         <button
                           type="button"
                           onMouseDown={(e) => {
@@ -7663,9 +7678,9 @@ export default function App() {
                           };
                           input.click();
                         }}
-                        className={`flex-1 py-2.5 rounded-xl ${theme === "dark" ? "bg-white/5 border-white/20 hover:border-rose-500/50 text-white/60" : "bg-black/5 border-black/20 hover:border-rose-500/50 text-black/60"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs`}
+                        className={`flex-1 py-2.5 rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-200" : "bg-stone-50 hover:bg-stone-100 border-stone-300 text-stone-800 shadow-2xs"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs font-bold`}
                       >
-                        <ImageIcon className="w-4 h-4" />
+                        <ImageIcon className="w-4 h-4 text-rose-500" />
                         Change Header Image
                       </button>
                     </div>
@@ -7675,7 +7690,7 @@ export default function App() {
                 <div className="flex gap-3 pt-4">
                   <button 
                     onClick={() => setEditingBlog(null)}
-                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} transition-colors`}
+                    className={`flex-1 py-3 rounded-xl font-bold text-sm ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700" : "bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300"} border transition-colors`}
                   >
                     Cancel
                   </button>
@@ -7714,7 +7729,7 @@ export default function App() {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap border hover-scale ${
                   adminTab === tab.id 
                     ? `${theme === "dark" ? "bg-rose-500 text-stone-950 border-rose-500 shadow-md shadow-rose-500/10" : "bg-rose-950 text-white border-[#1c1b18] shadow-md shadow-rose-950/10"}` 
-                    : `${theme === "dark" ? "bg-stone-900/40 text-stone-400 border-rose-500/10 hover:bg-stone-900/60" : "bg-white/60 text-stone-600 border-rose-500/10 hover:bg-white"}`
+                    : `${theme === "dark" ? "bg-stone-900 text-stone-200 border-stone-800 hover:border-rose-500/40" : "bg-white text-stone-800 border-stone-200 shadow-2xs hover:border-rose-300"}`
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -7728,9 +7743,9 @@ export default function App() {
             ))}
           </div>
 
-          <div key={adminTab} className="space-y-8 animate-fade-in-up">
+          <div key={adminTab} className="space-y-8">
             {adminTab === "profile" && (
-              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border`}>
+              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-800 text-stone-100" : "bg-white border-stone-200 text-stone-900 shadow-xs"} border`}>
                 <h2 className="text-lg font-black font-serif text-rose-950 dark:text-rose-100 mb-6 flex items-center gap-2">
                   <User className="w-5 h-5 text-rose-500" />
                   Edit Profile
@@ -7740,10 +7755,10 @@ export default function App() {
                     <div className="relative group">
                       <MediaImage 
                         url={tempProfile.avatar} 
-                        className={`w-20 h-20 rounded-2xl object-cover border ${theme === "dark" ? "border-white/10" : "border-black/10"}`} 
+                        className={`w-20 h-20 rounded-2xl object-cover border ${theme === "dark" ? "border-stone-700" : "border-stone-300"}`} 
                         fallback={
-                          <div className={`w-20 h-20 rounded-2xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border flex items-center justify-center`}>
-                            <User className={`w-8 h-8 ${theme === "dark" ? "text-white/20" : "text-black/20"}`} />
+                          <div className={`w-20 h-20 rounded-2xl ${theme === "dark" ? "bg-stone-800 border-stone-700" : "bg-stone-100 border-stone-300"} border flex items-center justify-center`}>
+                            <User className={`w-8 h-8 ${theme === "dark" ? "text-stone-400" : "text-stone-600"}`} />
                           </div>
                         }
                       />
@@ -7763,7 +7778,7 @@ export default function App() {
                     />
                     <div className="flex-1">
                       <p className="text-sm font-bold">Profile Picture</p>
-                      <p className={`text-xs ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-2`}>Recommended: 400x400px</p>
+                      <p className={`text-xs ${theme === "dark" ? "text-stone-400" : "text-stone-600"} mb-2 font-medium`}>Recommended: 400x400px</p>
                       {tempProfile.avatar && (
                         <button
                           type="button"
@@ -7784,24 +7799,24 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-2`}>Display Name</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-2`}>Display Name</label>
                     <input 
                       type="text" 
                       value={tempProfile.name}
                       onChange={(e) => setTempProfile({...tempProfile, name: e.target.value})}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-2`}>Bio</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-2`}>Bio</label>
                     <textarea 
                       rows={3}
                       value={tempProfile.bio}
                       onChange={(e) => setTempProfile({...tempProfile, bio: e.target.value})}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-sm resize-none`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-sm resize-none font-medium`}
                     />
                   </div>
-                  <div className={`mt-6 pt-6 border-t ${theme === "dark" ? "border-white/5" : "border-black/5"}`}>
+                  <div className={`mt-6 pt-6 border-t ${theme === "dark" ? "border-stone-800" : "border-stone-200"}`}>
                     <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-rose-500 mb-4 flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4" />
                       Legal Policies Management
@@ -7810,33 +7825,33 @@ export default function App() {
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
-                          <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>Privacy Policy</label>
+                          <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"}`}>Privacy Policy</label>
                           <span className="text-[9px] text-rose-600 dark:text-rose-400 font-bold tracking-wider uppercase">Crawlable & Legal</span>
                         </div>
                         <textarea 
                           rows={10}
                           value={tempProfile.privacyPolicy || ""}
                           onChange={(e) => setTempProfile({...tempProfile, privacyPolicy: e.target.value})}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-mono`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-xs font-mono`}
                           placeholder="Enter the updated privacy policy text..."
                         />
                       </div>
 
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
-                          <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>Terms of Service</label>
+                          <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"}`}>Terms of Service</label>
                           <span className="text-[9px] text-rose-600 dark:text-rose-400 font-bold tracking-wider uppercase">Crawlable & Legal</span>
                         </div>
                         <textarea 
                           rows={10}
                           value={tempProfile.termsOfService || ""}
                           onChange={(e) => setTempProfile({...tempProfile, termsOfService: e.target.value})}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-mono`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-xs font-mono`}
                           placeholder="Enter the updated terms of service text..."
                         />
                       </div>
 
-                      <p className={`flex items-center gap-2 pt-2 text-[10px] font-bold ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>
+                      <p className={`flex items-center gap-2 pt-2 text-[10px] font-bold ${theme === "dark" ? "text-stone-400" : "text-stone-600"}`}>
                         <ShieldCheck className="w-3.5 h-3.5 text-rose-500" />
                         Privacy &amp; Terms are saved with the "Save All Changes" button below.
                       </p>
@@ -7847,16 +7862,16 @@ export default function App() {
             )}
 
             {adminTab === "posts" && (
-              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border`}>
-                <h2 className="text-lg font-black font-serif text-rose-950 dark:text-rose-100 mb-6 flex items-center gap-2">
+              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-white border-stone-200 shadow-xs"} border`}>
+                <h2 className={`text-lg font-black font-serif ${theme === "dark" ? "text-stone-100" : "text-stone-900"} mb-6 flex items-center gap-2`}>
                   <ImageIcon className="w-5 h-5 text-rose-500" />
                   Manage Posts (Gallery)
                 </h2>
                 
                 {/* Add Post Form */}
-                <div className={`p-4 rounded-2xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border mb-6 space-y-4`}>
+                <div className={`p-4 rounded-2xl ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-200"} border mb-6 space-y-4`}>
                   {newPost.url && (
-                    <div className={`relative aspect-video rounded-xl overflow-hidden border ${theme === "dark" ? "border-white/10" : "border-black/10"} bg-black/20`}>
+                    <div className={`relative aspect-video rounded-xl overflow-hidden border ${theme === "dark" ? "border-stone-800" : "border-stone-300"} bg-black/20`}>
                       {newPost.type === "video" ? (
                         <VideoEmbed url={newPost.url} minimal />
                       ) : (
@@ -7874,11 +7889,11 @@ export default function App() {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => postFileInputRef.current?.click()}
-                      className={`flex-1 py-3 rounded-xl ${theme === "dark" ? "bg-white/5 border-white/20 hover:border-rose-500/50" : "bg-black/5 border-black/20 hover:border-rose-500/50"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs ${theme === "dark" ? "text-white/60" : "text-black/60"}`}
+                      className={`flex-1 py-3 rounded-xl ${theme === "dark" ? "bg-stone-800 border-stone-700 text-stone-200 hover:border-rose-500/50" : "bg-white border-stone-300 text-stone-800 hover:border-rose-500/50 shadow-2xs"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs font-bold`}
                     >
                       {isUploading ? (
-                        <div className={`w-4 h-4 border-2 ${theme === "dark" ? "border-white/30 border-t-white" : "border-black/30 border-t-black"} rounded-full animate-spin`} />
-                      ) : <ImageIcon className="w-4 h-4" />}
+                        <div className={`w-4 h-4 border-2 ${theme === "dark" ? "border-stone-400 border-t-white" : "border-stone-600 border-t-stone-900"} rounded-full animate-spin`} />
+                      ) : <ImageIcon className="w-4 h-4 text-rose-500" />}
                       Upload Image/Video
                     </button>
                     <input 
@@ -7890,7 +7905,7 @@ export default function App() {
                     />
                     <button 
                       onClick={() => setNewPost({...newPost, type: "video", url: ""})}
-                      className={`p-3 rounded-xl border transition-all ${newPost.type === "video" ? "bg-rose-500/20 border-rose-500 text-rose-500" : `${theme === "dark" ? "bg-white/5 border-white/10 text-white/40" : "bg-black/5 border-black/10 text-black/40"}`}`}
+                      className={`p-3 rounded-xl border transition-all ${newPost.type === "video" ? "bg-rose-500/20 border-rose-500 text-rose-500 font-bold" : `${theme === "dark" ? "bg-stone-800 border-stone-700 text-stone-300" : "bg-white border-stone-300 text-stone-700 shadow-2xs"}`}`}
                     >
                       <Play className="w-4 h-4" />
                     </button>
@@ -7909,7 +7924,7 @@ export default function App() {
                         category: newPost.category && newPost.category !== autoDetectCategory(newPost.name || "", "") ? newPost.category : detected
                       });
                     }}
-                    className={`w-full ${theme === "dark" ? "bg-[#222] border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                    className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-sm`}
                   />
 
                   <div className="flex gap-2">
@@ -7918,7 +7933,7 @@ export default function App() {
                       placeholder="Category (e.g. Sarees, Kurtas, Lehengas...)"
                       value={newPost.category || ""}
                       onChange={(e) => setNewPost({...newPost, category: e.target.value})}
-                      className={`flex-1 ${theme === "dark" ? "bg-[#222] border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                      className={`flex-1 ${theme === "dark" ? "bg-stone-900 border-stone-600 text-stone-100 placeholder-stone-400" : "bg-white border-stone-300 text-stone-900 placeholder-stone-500 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                     />
                     <button 
                       type="button"
@@ -7926,7 +7941,7 @@ export default function App() {
                         const autoCat = autoDetectCategory(newPost.name || "", "");
                         setNewPost({...newPost, category: autoCat});
                       }}
-                      className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} border ${theme === "dark" ? "border-white/10" : "border-black/10"}`}
+                      className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-600" : "bg-stone-100 hover:bg-stone-200 text-stone-900 border-stone-300 shadow-2xs"} border`}
                       title="Auto-detect Category from Caption"
                     >
                       Detect ✨
@@ -7939,14 +7954,14 @@ export default function App() {
                       placeholder="Paste YT, IG, or FB video link..."
                       value={newPost.url}
                       onChange={(e) => setNewPost({...newPost, url: e.target.value, type: "video"})}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-600 text-stone-100 placeholder-stone-400" : "bg-white border-stone-300 text-stone-900 placeholder-stone-500 shadow-2xs"} border rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                     />
                   )}
 
                   {/* Tag Products */}
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2 flex items-center gap-2">
-                      <Tag className="w-3 h-3" />
+                    <label className={`block text-[11px] font-black uppercase tracking-wider ${theme === "dark" ? "text-stone-200" : "text-stone-800"} mb-2.5 flex items-center gap-2`}>
+                      <Tag className="w-3.5 h-3.5 text-rose-500" />
                       Tag Products
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -7967,7 +7982,7 @@ export default function App() {
                             if (updatedTagged.length > 0) {
                               const firstTaggedProd = tempProducts.find(p => p.id === updatedTagged[0]);
                               if (firstTaggedProd && firstTaggedProd.category) {
-                                detectedCat = firstTaggedProd.category;
+                                 detectedCat = firstTaggedProd.category;
                               }
                             }
                             
@@ -7977,13 +7992,15 @@ export default function App() {
                               category: detectedCat
                             });
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                             newPost.taggedProducts.includes(product.id) 
-                              ? "bg-rose-500/20 border-rose-500 text-rose-500" 
-                              : "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                              ? "bg-rose-600 border-rose-600 text-white shadow-xs" 
+                              : `${theme === "dark" ? "bg-stone-800 border-stone-600 text-stone-100 hover:border-stone-400 hover:text-white" : "bg-white border-stone-300 text-stone-900 hover:border-stone-400 hover:text-black shadow-2xs"}`
                           }`}
                         >
-                          {product.name}
+                          <span className="truncate max-w-[200px] sm:max-w-xs inline-block align-middle" title={product.name}>
+                            {product.name}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -7994,13 +8011,13 @@ export default function App() {
                     disabled={isAddingPost || !newPost.url}
                     className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                       isAddingPost || !newPost.url 
-                        ? "bg-rose-650/40 text-stone-500 cursor-not-allowed" 
-                        : "bg-rose-500 hover:bg-rose-400 text-stone-950 font-black uppercase text-xs tracking-wider"
+                        ? "bg-rose-600/40 text-stone-400 cursor-not-allowed" 
+                        : "bg-rose-600 hover:bg-rose-500 text-white font-black uppercase text-xs tracking-wider shadow-md shadow-rose-600/20 active:scale-[0.99]"
                     }`}
                   >
                     {isAddingPost ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-stone-950/30 border-t-stone-950 rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         Processing...
                       </>
                     ) : "Add to Gallery"}
@@ -8008,12 +8025,12 @@ export default function App() {
                 </div>
 
                 {/* Posts List Header & Counter */}
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10 flex-wrap gap-2">
+                <div className={`flex items-center justify-between mb-4 pb-3 border-b ${theme === "dark" ? "border-stone-800" : "border-stone-200"} flex-wrap gap-2`}>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${theme === "dark" ? "bg-rose-500/20 text-rose-300 border border-rose-500/40" : "bg-rose-50 text-rose-800 border border-rose-200"}`}>
                       {tempPosts.length} {tempPosts.length === 1 ? "Published Post" : "Published Posts"}
                     </span>
-                    <span className="text-[11px] text-white/50">
+                    <span className={`text-xs ${theme === "dark" ? "text-stone-400" : "text-stone-600"} font-medium`}>
                       All Media Types (Reels, Videos, Photos)
                     </span>
                   </div>
@@ -8023,13 +8040,13 @@ export default function App() {
                 {!isPostsLoaded && tempPosts.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-6 h-6 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin mx-auto mb-3" />
-                    <p className="text-xs text-white/50 font-bold uppercase tracking-wider">Loading Published Posts...</p>
+                    <p className={`text-xs ${theme === "dark" ? "text-stone-400" : "text-stone-600"} font-bold uppercase tracking-wider`}>Loading Published Posts...</p>
                   </div>
                 ) : tempPosts.length === 0 ? (
-                  <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-white/15 bg-white/5">
-                    <ImageIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <h3 className="text-sm font-bold text-white mb-1">No Published Posts</h3>
-                    <p className="text-xs text-white/40 max-w-sm mx-auto">Upload an image or paste a video link above to add your first post.</p>
+                  <div className={`text-center py-12 px-4 rounded-2xl border border-dashed ${theme === "dark" ? "border-stone-800 bg-stone-900" : "border-stone-300 bg-stone-50"}`}>
+                    <ImageIcon className={`w-10 h-10 ${theme === "dark" ? "text-stone-600" : "text-stone-400"} mx-auto mb-3`} />
+                    <h3 className={`text-sm font-bold ${theme === "dark" ? "text-stone-200" : "text-stone-800"} mb-1`}>No Published Posts</h3>
+                    <p className={`text-xs ${theme === "dark" ? "text-stone-400" : "text-stone-600"} max-w-sm mx-auto`}>Upload an image or paste a video link above to add your first post.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -8038,20 +8055,20 @@ export default function App() {
                       const dateStr = post.created_at ? new Date(post.created_at).toLocaleDateString() : "Active";
                       const taggedCount = Array.isArray(post.taggedProducts) ? post.taggedProducts.length : 0;
                       return (
-                        <div key={post.id} className="p-3 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 transition-all flex flex-col justify-between">
+                        <div key={post.id} className={`p-4 rounded-2xl border ${theme === "dark" ? "border-stone-700 bg-stone-900 hover:border-stone-600" : "border-stone-300 bg-white hover:border-stone-400 shadow-xs"} transition-all flex flex-col justify-between`}>
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[10px] font-mono text-white/50">#{post.id}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                              <span className={`text-[11px] font-mono font-bold ${theme === "dark" ? "text-stone-300" : "text-stone-700"}`}>#{post.id}</span>
+                              <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
                                 isVideo 
-                                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" 
-                                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                  ? (theme === "dark" ? "bg-purple-950 text-purple-200 border border-purple-800" : "bg-purple-100 text-purple-900 border border-purple-300")
+                                  : (theme === "dark" ? "bg-emerald-950 text-emerald-200 border border-emerald-800" : "bg-emerald-100 text-emerald-900 border border-emerald-300")
                               }`}>
                                 {isVideo ? "🎬 Video / Reel" : "📸 Photo / Image"}
                               </span>
                             </div>
 
-                            <div className="relative aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/10 mb-2.5">
+                            <div className={`relative aspect-video rounded-xl overflow-hidden bg-black/40 border ${theme === "dark" ? "border-stone-800" : "border-stone-200"} mb-2.5`}>
                               {isVideo ? (
                                 <VideoEmbed url={post.url} minimal />
                               ) : (
@@ -8060,20 +8077,20 @@ export default function App() {
                             </div>
 
                             <div className="space-y-1 text-xs">
-                              <div className="flex items-center justify-between text-[11px] text-white/60">
-                                <span>{dateStr}</span>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className={`font-semibold ${theme === "dark" ? "text-stone-300" : "text-stone-700"}`}>{dateStr}</span>
                                 {taggedCount > 0 && (
-                                  <span className="text-rose-400 font-bold">🏷️ {taggedCount} tagged</span>
+                                  <span className={`font-bold ${theme === "dark" ? "text-rose-400" : "text-rose-700"}`}>🏷️ {taggedCount} tagged</span>
                                 )}
                               </div>
                               {post.name && (
-                                <p className="font-bold text-white line-clamp-1">{post.name}</p>
+                                <p className={`font-bold text-sm ${theme === "dark" ? "text-stone-100" : "text-stone-900"} line-clamp-1`}>{post.name}</p>
                               )}
                               <a 
                                 href={post.url} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
-                                className="text-[11px] text-rose-400 hover:underline truncate block"
+                                className={`text-xs font-semibold ${theme === "dark" ? "text-rose-400 hover:text-rose-300" : "text-rose-700 hover:text-rose-900"} underline truncate block`}
                                 title={post.url}
                               >
                                 {post.url}
@@ -8081,10 +8098,10 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="pt-2 mt-3 border-t border-white/10 flex justify-end">
+                          <div className={`pt-2.5 mt-3 border-t ${theme === "dark" ? "border-stone-800" : "border-stone-200"} flex justify-end`}>
                             <button 
                               onClick={() => setItemToDelete({ type: "post", id: post.id, docId: post.docId })}
-                              className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              className={`px-3 py-1.5 rounded-lg ${theme === "dark" ? "bg-red-950/60 hover:bg-red-900 text-red-200 border border-red-800" : "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"} text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer`}
                               title="Delete post"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -8100,14 +8117,14 @@ export default function App() {
             )}
 
             {adminTab === "products" && (
-              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border`}>
+              <section className={`p-6 rounded-3xl ${theme === "dark" ? "bg-stone-900 border-stone-800 text-stone-100" : "bg-white border-stone-200 text-stone-900 shadow-xs"} border`}>
                 <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
                   <ShoppingBag className="w-5 h-5 text-orange-500" />
                   Manage Products (Shop)
                 </h2>
 
                 {/* Add Product Form */}
-                <div className={`p-4 rounded-2xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border mb-6 space-y-3`}>
+                <div className={`p-4 rounded-2xl ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-200"} border mb-6 space-y-3`}>
                   <input 
                     type="text" 
                     placeholder="Product Name"
@@ -8121,7 +8138,7 @@ export default function App() {
                         category: newProduct.category && newProduct.category !== autoDetectCategory(newProduct.name, newProduct.description) ? newProduct.category : detected
                       });
                     }}
-                    className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                    className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                   />
                   <textarea 
                     placeholder="Product Description"
@@ -8136,7 +8153,7 @@ export default function App() {
                       });
                     }}
                     rows={2}
-                    className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm resize-none`}
+                    className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm resize-none font-medium`}
                   />
 
                   <div className="flex gap-2">
@@ -8145,7 +8162,7 @@ export default function App() {
                       placeholder="Category (e.g. Sarees, Kurtas, Lehengas...)"
                       value={newProduct.category || ""}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                      className={`flex-1 ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                      className={`flex-1 ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                     />
                     <button 
                       type="button"
@@ -8153,7 +8170,7 @@ export default function App() {
                         const autoCat = autoDetectCategory(newProduct.name, newProduct.description);
                         setNewProduct({...newProduct, category: autoCat});
                       }}
-                      className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-white/5 hover:bg-white/10 text-white" : "bg-black/5 hover:bg-black/10 text-black"} border ${theme === "dark" ? "border-white/10" : "border-black/10"}`}
+                      className={`px-3 py-2 text-xs font-bold rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 text-stone-100 border-stone-600" : "bg-stone-100 hover:bg-stone-200 text-stone-900 border-stone-300 shadow-2xs"} border`}
                       title="Auto-detect Category from Name/Description"
                     >
                       Detect ✨
@@ -8164,10 +8181,10 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row gap-2">
                       <input 
                         type="text" 
-                        placeholder="Price"
+                        placeholder="Price (₹)"
                         value={newProduct.price}
                         onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                        className={`w-full sm:w-24 ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                        className={`w-full sm:w-28 ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                       />
                       <div className="flex gap-2 flex-1">
                         <input 
@@ -8180,12 +8197,12 @@ export default function App() {
                               fetchProductDetails();
                             }
                           }}
-                          className={`flex-1 min-w-0 ${theme === "dark" ? "bg-white/5 border-white/10 text-white" : "bg-black/5 border-black/10 text-black"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm`}
+                          className={`flex-1 min-w-0 ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                         />
                         <button 
                           onClick={fetchProductDetails}
                           disabled={isFetchingProduct || !newProduct.buyUrl}
-                          className={`px-4 py-2.5 rounded-xl ${theme === "dark" ? "bg-rose-500/10 border-rose-500/20" : "bg-rose-500/5 border-rose-500/10"} border text-rose-500 hover:bg-rose-500/20 transition-all disabled:opacity-50 flex items-center justify-center flex-shrink-0`}
+                          className={`px-4 py-2.5 rounded-xl ${theme === "dark" ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20" : "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"} border transition-all disabled:opacity-50 flex items-center justify-center flex-shrink-0 cursor-pointer`}
                           title="Fetch Product Details"
                         >
                           {isFetchingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -8196,15 +8213,15 @@ export default function App() {
                   <div className="flex gap-2">
                     <div className="flex-1 flex gap-2">
                       {newProduct.url && (
-                        <div className={`w-10 h-10 rounded-lg overflow-hidden border ${theme === "dark" ? "border-white/10" : "border-black/10"} flex-shrink-0`}>
+                        <div className={`w-10 h-10 rounded-lg overflow-hidden border ${theme === "dark" ? "border-stone-700" : "border-stone-300"} flex-shrink-0`}>
                           <MediaImage url={newProduct.url} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <button 
                         onClick={() => productFileInputRef.current?.click()}
-                        className={`flex-1 py-2.5 rounded-xl ${theme === "dark" ? "bg-white/5 border-white/20 hover:border-orange-500/50" : "bg-black/5 border-black/20 hover:border-orange-500/50"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs ${theme === "dark" ? "text-white/60" : "text-black/60"}`}
+                        className={`flex-1 py-2.5 rounded-xl ${theme === "dark" ? "bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-200 hover:border-orange-500/50" : "bg-stone-50 hover:bg-stone-100 border-stone-300 text-stone-800 hover:border-orange-500/50 shadow-2xs"} border border-dashed transition-all flex items-center justify-center gap-2 text-xs font-bold`}
                       >
-                        <ImageIcon className="w-4 h-4" />
+                        <ImageIcon className="w-4 h-4 text-orange-500" />
                         {newProduct.url ? "Change Image" : "Upload Image"}
                       </button>
                     </div>
@@ -8222,37 +8239,37 @@ export default function App() {
                       setTempProducts([{ id: Date.now(), ...newProduct, reviews: [] }, ...tempProducts]);
                       setNewProduct({ name: "", price: "", url: "", buyUrl: "", description: "", category: "" });
                     }}
-                    className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm transition-all"
+                    className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm transition-all shadow-md shadow-orange-600/20 active:scale-[0.99]"
                   >
                     Add Product
                   </button>
                 </div>
 
-                <p className={`mb-6 text-[10px] font-bold text-center ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>
+                <p className={`mb-6 text-[10px] font-bold text-center ${theme === "dark" ? "text-stone-400" : "text-stone-600"}`}>
                   Added products go live once you tap "Save All Changes" below.
                 </p>
-
-
 
                 {/* Products List */}
                 <div className="space-y-2">
                   {tempProducts.map((product) => (
-                    <div key={product.id} className={`flex items-center gap-3 p-2 rounded-xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border group`}>
-                      <MediaImage url={product.url} className="w-12 h-12 rounded-lg object-cover" />
-                      <div className="flex-1">
-                        <p className="text-sm font-bold">{product.name}</p>
-                        <p className={`text-xs ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>₹{product.price}</p>
+                    <div key={product.id} className={`flex items-center gap-3 p-3 rounded-xl ${theme === "dark" ? "bg-stone-900 border-stone-700 hover:border-stone-600" : "bg-white border-stone-200 hover:border-stone-300 shadow-xs"} border group transition-colors`}>
+                      <MediaImage url={product.url} className="w-12 h-12 rounded-lg object-cover border border-stone-200 dark:border-stone-800" />
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-bold truncate ${theme === "dark" ? "text-stone-100" : "text-stone-900"}`}>{product.name}</p>
+                        <p className={`text-xs font-semibold ${theme === "dark" ? "text-rose-400" : "text-rose-700"}`}>₹{product.price}</p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1.5 flex-shrink-0">
                         <button 
                           onClick={() => setEditingProduct(product)}
-                          className={`p-2 rounded-lg ${theme === "dark" ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-blue-500/10 text-blue-600 border border-blue-500/20"} transition-all`}
+                          className={`p-2 rounded-lg ${theme === "dark" ? "bg-blue-950/60 text-blue-300 border border-blue-800 hover:bg-blue-900" : "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"} transition-all cursor-pointer`}
+                          title="Edit product"
                         >
                           <Settings className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => setItemToDelete({ type: 'product', id: product.id, docId: product.docId })}
-                          className={`p-2 rounded-lg ${theme === "dark" ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-red-500/10 text-red-600 border border-red-500/20"} transition-all`}
+                          className={`p-2 rounded-lg ${theme === "dark" ? "bg-red-950/60 text-red-300 border border-red-800 hover:bg-red-900" : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"} transition-all cursor-pointer`}
+                          title="Delete product"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -8292,16 +8309,18 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {messages.map((msg) => (
+                    {messages.map((msg, msgIdx) => {
+                      const msgId = msg.id ?? (msg.timestamp ? String(msg.timestamp) : (msg.email || String(msgIdx)));
+                      return (
                       <div 
-                        key={msg.id} 
+                        key={msgId} 
                         className="p-5 sm:p-6 rounded-xl bg-stone-50/80 dark:bg-stone-950/70 border border-stone-200/90 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 transition-colors shadow-xs"
                       >
                         {/* Header: Sender Name & Actions */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-200 dark:border-stone-800">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-base text-stone-900 dark:text-stone-50">{msg.name}</h3>
+                              <h3 className="font-bold text-base text-stone-900 dark:text-stone-50">{msg.name || "Anonymous Contact"}</h3>
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                 Verified
                               </span>
@@ -8331,7 +8350,7 @@ export default function App() {
                               </a>
                             )}
                             <button 
-                              onClick={() => setItemToDelete({ type: 'message', id: msg.id })}
+                              onClick={() => setItemToDelete({ type: 'message', id: msgId })}
                               className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                               title="Delete message"
                             >
@@ -8366,7 +8385,8 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 )}
               </section>
@@ -8384,14 +8404,14 @@ export default function App() {
                       <h2 className="text-2xl font-black font-serif tracking-tight">Blog Management</h2>
                     </div>
                   </div>
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${theme === "dark" ? "bg-white/5 border border-white/10 text-white/60" : "bg-white border border-black/10 text-black/60"}`}>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${theme === "dark" ? "bg-stone-900 border border-stone-700 text-stone-200" : "bg-white border border-stone-300 text-stone-800 shadow-2xs"}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     {blogs.length} Published
                   </div>
                 </div>
 
                 {/* Form to add blogs */}
-                <div className={`p-6 rounded-2xl ${theme === "dark" ? "bg-stone-900/40 border-white/5" : "bg-white border-black/0"} border space-y-4`}>
+                <div className={`p-6 rounded-2xl ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-200"} border space-y-4`}>
                   <div className="flex items-center gap-2.5 pb-2 border-b border-dashed border-current/10">
                     <div className="w-1 h-6 bg-rose-500 rounded-full" />
                     <h3 className="text-sm font-black uppercase tracking-wider text-rose-500">Create New Fashion Post</h3>
@@ -8400,75 +8420,75 @@ export default function App() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Article Title *</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Article Title *</label>
                       <input 
                         type="text" 
                         placeholder="e.g. 5 Stunning Ways to Style Your Saree"
                         value={newBlog.title}
                         onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm font-semibold`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                       />
                     </div>
                     <div>
-                      <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Category / Tag</label>
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Category / Tag</label>
                       <input 
                         type="text" 
                         placeholder="e.g. Sarees, Styling Tips, Vlogs"
                         value={newBlog.category}
                         onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm font-semibold`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Short Excerpt / Summary</label>
+                    <label className={`block text-[11px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Short Excerpt / Summary</label>
                     <textarea 
                       placeholder="Enter a brief teaser or summary of your fashion article..."
                       value={newBlog.excerpt}
                       onChange={(e) => setNewBlog({ ...newBlog, excerpt: e.target.value })}
                       rows={2}
-                      className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-sm font-semibold resize-none`}
+                      className={`w-full ${theme === "dark" ? "bg-stone-950 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-sm font-medium resize-none`}
                     />
                   </div>
 
                   {/* SEO Configuration Section */}
-                  <div className={`p-4 rounded-xl border ${theme === "dark" ? "bg-white/[0.02] border-white/10" : "bg-stone-50 border-stone-200"} space-y-4`}>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-500/90 flex items-center gap-1.5">
+                  <div className={`p-4 rounded-xl border ${theme === "dark" ? "bg-stone-950 border-stone-800" : "bg-stone-50 border-stone-200"} space-y-4`}>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-rose-500" />
                       SEO Optimization Settings
                     </h4>
                     
                     <div>
-                      <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>SEO Title (Display in Search Results / social preview) *</label>
+                      <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>SEO Title (Display in Search Results / social preview) *</label>
                       <input 
                         type="text" 
                         placeholder="e.g. Latest Fashion Trends 2026: Top Styles Every Fashion Lover Must Know"
                         value={newBlog.seoTitle}
                         onChange={(e) => setNewBlog({ ...newBlog, seoTitle: e.target.value })}
-                        className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold`}
+                        className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium`}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Meta Description *</label>
+                        <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Meta Description *</label>
                         <textarea 
                           placeholder="e.g. Discover the latest fashion trends of 2026, styling tips, outfit ideas, and must-have fashion essentials."
                           value={newBlog.metaDescription}
                           onChange={(e) => setNewBlog({ ...newBlog, metaDescription: e.target.value })}
                           rows={2}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold resize-none`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium resize-none`}
                         />
                       </div>
                       <div>
-                        <label className={`block text-[9px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Focus Keyword *</label>
+                        <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Focus Keyword *</label>
                         <textarea 
                           placeholder="e.g. fashion trends 2026, styling tips"
                           value={newBlog.focusKeyword}
                           onChange={(e) => setNewBlog({ ...newBlog, focusKeyword: e.target.value })}
                           rows={2}
-                          className={`w-full ${theme === "dark" ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-black/5 border-black/10 text-black placeholder-black/40"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500/50 transition-colors text-xs font-semibold resize-none`}
+                          className={`w-full ${theme === "dark" ? "bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-500" : "bg-white border-stone-300 text-stone-900 placeholder-stone-400 shadow-2xs"} border rounded-xl px-4 py-2.5 focus:outline-none focus:border-rose-500 transition-colors text-xs font-medium resize-none`}
                         />
                       </div>
                     </div>
@@ -8476,10 +8496,10 @@ export default function App() {
 
                   {/* Document Rich-Text Formatting Controls */}
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Article Content *</label>
-                    <div className={`rounded-xl border ${theme === "dark" ? "bg-stone-900 border-white/10" : "bg-stone-50 border-black/10"} overflow-hidden`}>
+                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Article Content *</label>
+                    <div className={`rounded-xl border ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-stone-50 border-stone-200"} overflow-hidden`}>
                       {/* Editor Toolbar */}
-                      <div className={`p-1.5 border-b flex flex-wrap items-center gap-1.5 ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-stone-100 border-black/10"}`}>
+                      <div className={`p-1.5 border-b flex flex-wrap items-center gap-1.5 ${theme === "dark" ? "bg-stone-900 border-stone-800" : "bg-stone-100 border-stone-200"}`}>
                         <button
                           type="button"
                           onMouseDown={(e) => {
@@ -8686,16 +8706,16 @@ export default function App() {
 
                   {/* Header Image upload */}
                   <div>
-                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-white/40" : "text-black/40"} mb-1`}>Post Header Image</label>
+                    <label className={`block text-[10px] font-bold uppercase tracking-widest ${theme === "dark" ? "text-stone-300" : "text-stone-700"} mb-1`}>Post Header Image</label>
                     <div className="flex flex-col sm:flex-row gap-4 items-center">
-                      <div className="relative group w-full sm:w-40 h-28 overflow-hidden rounded-xl border border-white/5">
+                      <div className="relative group w-full sm:w-40 h-28 overflow-hidden rounded-xl border border-stone-300 dark:border-stone-700">
                         <MediaImage 
                           url={newBlog.image} 
                           className="w-full h-full object-cover" 
                           fallback={
-                            <div className={`w-full h-full ${theme === "dark" ? "bg-white/5" : "bg-black/5"} flex flex-col items-center justify-center`}>
-                              <ImageIcon className={`w-8 h-8 ${theme === "dark" ? "text-white/20" : "text-black/20"} mb-1`} />
-                              <span className="text-[9px] text-stone-500 font-bold tracking-widest uppercase">Select Image</span>
+                            <div className={`w-full h-full ${theme === "dark" ? "bg-stone-800" : "bg-stone-100"} flex flex-col items-center justify-center`}>
+                              <ImageIcon className={`w-8 h-8 ${theme === "dark" ? "text-stone-400" : "text-stone-500"} mb-1`} />
+                              <span className="text-[9px] text-stone-500 dark:text-stone-400 font-bold tracking-widest uppercase">Select Image</span>
                             </div>
                           }
                         />
@@ -8748,7 +8768,7 @@ export default function App() {
                           <Plus className="w-4 h-4" />
                           Publish blog post
                         </button>
-                        <p className={`text-[10px] ${theme === "dark" ? "text-white/30" : "text-black/30"} mt-2 text-center sm:text-left`}>* Remember to tap "Save All Changes" at the bottom of the screen to write to Firestore permanently</p>
+                        <p className={`text-[10px] ${theme === "dark" ? "text-stone-400" : "text-stone-600"} mt-2 text-center sm:text-left font-medium`}>* Remember to tap "Save All Changes" at the bottom of the screen to write to Firestore permanently</p>
                       </div>
                     </div>
                   </div>
@@ -8759,21 +8779,21 @@ export default function App() {
                   <h3 className="text-sm font-black uppercase tracking-wider text-rose-500">Scheduled / Published Stories ({tempBlogs.length})</h3>
                   {tempBlogs.length === 0 ? (
                     <div className="text-center py-12">
-                      <p className={`text-xs ${theme === "dark" ? "text-white/40" : "text-black/40"} font-bold tracking-wider uppercase`}>No blogs created yet</p>
+                      <p className={`text-xs ${theme === "dark" ? "text-stone-400" : "text-stone-600"} font-bold tracking-wider uppercase`}>No blogs created yet</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {tempBlogs.map((b) => (
-                        <div key={b.id} className={`p-4 rounded-2xl ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"} border flex gap-4 items-center relative group`}>
+                        <div key={b.id} className={`p-4 rounded-2xl ${theme === "dark" ? "bg-stone-900 border-stone-700 hover:border-stone-600" : "bg-white border-stone-200 hover:border-stone-300 shadow-xs"} border flex gap-4 items-center relative group transition-colors`}>
                           {b.image && (
-                            <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/5">
+                            <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-stone-300 dark:border-stone-700">
                               <MediaImage url={b.image} className="w-full h-full object-cover" alt={b.title} />
                             </div>
                           )}
                           <div className="flex-1 min-w-0 pr-2">
                             <h4 className="font-bold text-sm truncate">{b.title}</h4>
                             <p className="text-[10px] text-rose-500 uppercase font-black tracking-widest">{b.category || "Fashion"}</p>
-                            <p className={`text-[9px] ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>{new Date(b.timestamp).toLocaleDateString()}</p>
+                            <p className={`text-[10px] font-semibold ${theme === "dark" ? "text-stone-400" : "text-stone-600"}`}>{new Date(b.timestamp).toLocaleDateString()}</p>
                           </div>
                           
                           <div className="flex gap-1.5 flex-row items-center flex-shrink-0">
