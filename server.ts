@@ -1765,6 +1765,15 @@ async function startServer() {
     }
   }
 
+  // Serve public directory static assets (favicons, icons, manifest, etc.)
+  const publicDir = path.join(process.cwd(), "public");
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir, {
+      maxAge: "1d",
+      index: false
+    }));
+  }
+
   // Bind SEO handlers to routes before serving general SPA fallback
   app.get("/ads.txt", (req, res) => {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
