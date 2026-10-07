@@ -70,6 +70,7 @@ export const Hero: React.FC<HeroProps> = ({
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const isWheeling = useRef(false);
   const touchStartY = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -151,20 +152,25 @@ export const Hero: React.FC<HeroProps> = ({
 
   // Determine current display data:
   // If real image posts exist: use current post
-  // If zero image posts exist: clean editorial showcase state
+  // If zero image posts exist: use authentic featured product from catalogue (NEVER a fake/unrelated fallback image)
   const currentPost = hasEligiblePosts ? eligiblePosts[currentIndex] : null;
 
   const displayImageUrl = hasEligiblePosts
-    ? (currentPost?.url || currentPost?.image_url)
-    : (featuredProduct?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=900&q=80");
+    ? (currentPost?.url || currentPost?.image_url || "")
+    : (featuredProduct?.url || "");
 
   const displayTitle = hasEligiblePosts
     ? (currentPost?.name || currentPost?.title || currentPost?.caption || "Curated Indian Style")
-    : "Handcrafted Indian Bridal Silk Saree";
+    : (featuredProduct?.name || "Handcrafted Kanjivaram Silk Saree");
 
   const displayCategory = hasEligiblePosts
     ? (currentPost?.category || "Photo Gallery")
-    : "Curator's Showcase";
+    : (featuredProduct?.category ? (featuredProduct.category.charAt(0).toUpperCase() + featuredProduct.category.slice(1)) : "Curator's Showcase");
+
+  // Reset imageLoaded on image URL change to ensure seamless fade-in
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [displayImageUrl]);
 
   return (
     <section className="relative overflow-hidden pt-4 pb-10 sm:pt-10 sm:pb-16 md:pt-16 md:pb-24">
@@ -266,70 +272,83 @@ export const Hero: React.FC<HeroProps> = ({
                 className="relative rounded-[2rem] overflow-hidden border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-2xl select-none group"
               >
                 {/* Fixed Controlled Aspect Ratio (4:5) */}
-                <div className="aspect-[4/5] relative overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <div className="aspect-[4/5] relative overflow-hidden bg-stone-900">
                   
-                  {/* Virtualized Animated Post Slide when multi-posts exist, clean static slide for zero-post showcase */}
-                  {hasMultiplePosts ? (
-                    <AnimatePresence initial={false} custom={direction} mode="popLayout">
-                      <motion.div
-                        key={currentPost?.id || currentIndex}
-                        custom={direction}
-                        initial={{ 
-                          opacity: 0, 
-                          y: direction > 0 ? 28 : -28,
-                          scale: 0.985 
-                        }}
-                        animate={{ 
-                          opacity: 1, 
-                          y: 0, 
-                          scale: 1,
-                          transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } 
-                        }}
-                        exit={{ 
-                          opacity: 0, 
-                          y: direction > 0 ? -28 : 28,
-                          scale: 0.985,
-                          transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } 
-                        }}
-                        className="absolute inset-0 w-full h-full will-change-transform"
-                      >
+                  {/* Luxury Loading Shimmer Base (Visible while image is loading or URL is resolving) */}
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
+                    <div className="w-14 h-14 rounded-full bg-stone-800/80 border border-amber-500/30 flex items-center justify-center mb-3 shadow-lg shadow-black/50">
+                      <Sparkles className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest mb-1">
+                      Curator's Haute Pick
+                    </span>
+                    <span className="text-[10px] text-stone-400">
+                      Loading handpicked luxury style...
+                    </span>
+                  </div>
+
+                  {/* Virtualized Animated Post Slide when multi-posts exist, clean static slide for showcase */}
+                  {displayImageUrl ? (
+                    hasMultiplePosts ? (
+                      <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                        <motion.div
+                          key={currentPost?.id || currentIndex}
+                          custom={direction}
+                          initial={{ 
+                            opacity: 0, 
+                            y: direction > 0 ? 28 : -28,
+                            scale: 0.985 
+                          }}
+                          animate={{ 
+                            opacity: 1, 
+                            y: 0, 
+                            scale: 1, 
+                            transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } 
+                          }}
+                          exit={{ 
+                            opacity: 0, 
+                            y: direction > 0 ? -28 : 28,
+                            scale: 0.985,
+                            transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } 
+                          }}
+                          className="absolute inset-0 w-full h-full will-change-transform z-10"
+                        >
+                          <img
+                            src={displayImageUrl}
+                            alt={displayTitle}
+                            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-103 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                            loading="eager"
+                            decoding="async"
+                            referrerPolicy="no-referrer"
+                            onLoad={() => setImageLoaded(true)}
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.style.display = "none";
+                            }}
+                          />
+                        </motion.div>
+                      </AnimatePresence>
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full z-10">
                         <img
                           src={displayImageUrl}
                           alt={displayTitle}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+                          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-103 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                           loading="eager"
+                          decoding="async"
                           referrerPolicy="no-referrer"
+                          onLoad={() => setImageLoaded(true)}
                           onError={(e) => {
                             const target = e.currentTarget;
                             target.style.display = "none";
-                            if (target.parentElement) {
-                              target.parentElement.classList.add("bg-gradient-to-br", "from-rose-950", "via-stone-900", "to-stone-950");
-                            }
                           }}
                         />
-                      </motion.div>
-                    </AnimatePresence>
-                  ) : (
-                    <div className="absolute inset-0 w-full h-full">
-                      <img
-                        src={displayImageUrl}
-                        alt={displayTitle}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-                        loading="eager"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.style.display = "none";
-                          if (target.parentElement) {
-                            target.parentElement.classList.add("bg-gradient-to-br", "from-rose-950", "via-stone-900", "to-stone-950");
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
+                      </div>
+                    )
+                  ) : null}
 
                   {/* Gradient Scrim for Readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/20 to-stone-950/30 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/20 to-stone-950/30 pointer-events-none z-15" />
 
                   {/* Top Bar: Curator Badge (+ Dynamic Indicator ONLY when real multiple posts exist) */}
                   <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between pointer-events-none z-20">
@@ -405,6 +424,18 @@ export const Hero: React.FC<HeroProps> = ({
                             className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
                           >
                             <span>Explore Post</span>
+                            <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
+                          </a>
+                        ) : featuredProduct?.id ? (
+                          <a
+                            href={`/product/${featuredProduct.id}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleNavigate(`/product/${featuredProduct.id}`);
+                            }}
+                            className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
+                          >
+                            <span>Explore Piece</span>
                             <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
                           </a>
                         ) : (

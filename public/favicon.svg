@@ -1,307 +1,225 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Outer Gold Ring Gradients -->
+    <!-- Rich Metallic Gold Gradients -->
     <linearGradient id="goldRim" x1="15%" y1="10%" x2="85%" y2="90%">
-      <stop offset="0%" stop-color="#FCEBA6" />
-      <stop offset="25%" stop-color="#E5BE5E" />
-      <stop offset="50%" stop-color="#FAF1BF" />
-      <stop offset="75%" stop-color="#B88523" />
-      <stop offset="100%" stop-color="#7C5209" />
+      <stop offset="0%" stop-color="#FFF4C2" />
+      <stop offset="20%" stop-color="#E7C064" />
+      <stop offset="45%" stop-color="#FDF2BA" />
+      <stop offset="70%" stop-color="#B88523" />
+      <stop offset="90%" stop-color="#7C5209" />
+      <stop offset="100%" stop-color="#D4A745" />
     </linearGradient>
 
-    <linearGradient id="innerGoldRim" x1="85%" y1="90%" x2="15%" y2="10%">
-      <stop offset="0%" stop-color="#694305" />
-      <stop offset="30%" stop-color="#B88523" />
-      <stop offset="60%" stop-color="#FAF0BD" />
-      <stop offset="85%" stop-color="#E5BE5E" />
-      <stop offset="100%" stop-color="#FCEBA6" />
+    <linearGradient id="goldBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6" />
+      <stop offset="35%" stop-color="#E5BE5E" />
+      <stop offset="70%" stop-color="#9A6B12" />
+      <stop offset="100%" stop-color="#5A3A03" />
     </linearGradient>
 
-    <!-- Inner Plaque Radial Gradient -->
-    <radialGradient id="plaqueBg" cx="45%" cy="40%" r="55%">
-      <stop offset="0%" stop-color="#FFFFFF" />
-      <stop offset="65%" stop-color="#FBF9F5" />
-      <stop offset="100%" stop-color="#EDE6D8" />
+    <linearGradient id="goldBright" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF9DB" />
+      <stop offset="50%" stop-color="#E5BE5E" />
+      <stop offset="100%" stop-color="#B3801C" />
+    </linearGradient>
+
+    <!-- Deep Luxury Onyx Medallion Radial Gradient -->
+    <radialGradient id="darkPlaque" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#1C1A17" />
+      <stop offset="45%" stop-color="#12100E" />
+      <stop offset="85%" stop-color="#0A0908" />
+      <stop offset="100%" stop-color="#050504" />
     </radialGradient>
 
-    <!-- 3D Gold Fill for Typography & Monogram -->
-    <linearGradient id="letterGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF2B8" />
-      <stop offset="20%" stop-color="#E2B755" />
-      <stop offset="45%" stop-color="#FDF4C7" />
-      <stop offset="70%" stop-color="#B48220" />
-      <stop offset="90%" stop-color="#7D520B" />
-      <stop offset="100%" stop-color="#B88628" />
-    </linearGradient>
+    <!-- Subtle Radial Glow on Crest -->
+    <radialGradient id="crestGlow" cx="50%" cy="46%" r="42%">
+      <stop offset="0%" stop-color="#E5BE5E" stop-opacity="0.18" />
+      <stop offset="60%" stop-color="#B88523" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
 
-    <linearGradient id="letterGoldDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E0B34E" />
-      <stop offset="50%" stop-color="#9E6F16" />
-      <stop offset="100%" stop-color="#634005" />
-    </linearGradient>
-
-    <!-- Vibrant Pink Saree Gradient -->
-    <linearGradient id="sareePink" x1="10%" y1="0%" x2="90%" y2="100%">
-      <stop offset="0%" stop-color="#FF5C8D" />
-      <stop offset="30%" stop-color="#E61E63" />
-      <stop offset="70%" stop-color="#C2185B" />
-      <stop offset="100%" stop-color="#880E4F" />
-    </linearGradient>
-
-    <linearGradient id="sareeHighlight" x1="0%" y1="30%" x2="100%" y2="70%">
-      <stop offset="0%" stop-color="#FF7597" />
-      <stop offset="50%" stop-color="#E91E63" />
-      <stop offset="100%" stop-color="#AD1457" />
-    </linearGradient>
-
-    <!-- Flower Gradient -->
-    <linearGradient id="flowerPink" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF80AB" />
-      <stop offset="60%" stop-color="#E91E63" />
-      <stop offset="100%" stop-color="#C2185B" />
-    </linearGradient>
-
-    <!-- Drop Shadows -->
-    <filter id="softShadow" x="-10%" y="-10%" width="125%" height="125%">
-      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.22" />
+    <!-- Drop Shadows for 3D Depth -->
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.9" />
+      <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#E5BE5E" flood-opacity="0.25" />
     </filter>
 
-    <filter id="embossShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#5B3C00" flood-opacity="0.3" />
-    </filter>
-
-    <filter id="innerDepth" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#9A7B38" flood-opacity="0.25" />
+    <filter id="softOuter" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.75" />
     </filter>
   </defs>
 
-  <!-- Outer Drop Shadow Circle -->
-  <circle cx="256" cy="256" r="244" fill="#000000" opacity="0.08" filter="url(#softShadow)" />
+  <!-- Outer Drop Shadow -->
+  <circle cx="256" cy="256" r="248" fill="#000000" opacity="0.6" filter="url(#softOuter)" />
 
-  <!-- Outer Thick Gold Beveled Ring -->
-  <circle cx="256" cy="256" r="242" fill="url(#goldRim)" stroke="#8C6013" stroke-width="2" />
-  <circle cx="256" cy="256" r="236" fill="none" stroke="url(#innerGoldRim)" stroke-width="4" opacity="0.8" />
-  <circle cx="256" cy="256" r="226" fill="none" stroke="#684206" stroke-width="1.5" opacity="0.6" />
+  <!-- 1. Outer Master Gold Ring (Multi-tier Beveled) -->
+  <circle cx="256" cy="256" r="244" fill="url(#goldRim)" stroke="#5A3A03" stroke-width="2" />
+  <circle cx="256" cy="256" r="236" fill="none" stroke="url(#goldBevel)" stroke-width="3" opacity="0.9" />
+  <circle cx="256" cy="256" r="226" fill="none" stroke="#2B1B01" stroke-width="2" opacity="0.7" />
 
-  <!-- Inner Ivory Medallion Plaque -->
-  <circle cx="256" cy="256" r="222" fill="url(#plaqueBg)" />
-  <!-- Inner Ring Gold Accent Line -->
-  <circle cx="256" cy="256" r="217" fill="none" stroke="url(#goldRim)" stroke-width="1.8" opacity="0.85" />
+  <!-- 2. Deep Obsidian Circular Medallion -->
+  <circle cx="256" cy="256" r="222" fill="url(#darkPlaque)" />
+  <circle cx="256" cy="256" r="222" fill="url(#crestGlow)" />
 
-  <!-- SUBTLE EMBLEM GLOW & BASE PLATE SHADOW -->
-  <ellipse cx="256" cy="450" rx="140" ry="8" fill="#B39255" opacity="0.18" />
+  <!-- 3. Inner Gold Beaded Border -->
+  <circle cx="256" cy="256" r="217" fill="none" stroke="url(#goldRim)" stroke-width="2" />
+  <circle cx="256" cy="256" r="211" fill="none" stroke="url(#goldBright)" stroke-width="2.5" stroke-dasharray="4,8" stroke-linecap="round" opacity="0.9" />
+  <circle cx="256" cy="256" r="204" fill="none" stroke="url(#goldRim)" stroke-width="1.2" opacity="0.75" />
 
   <!-- ============================================== -->
-  <!-- CENTRAL EMBLEM: LETTER R + WOMAN IN PINK SAREE -->
+  <!-- TOP APEX: ROYAL REGAL GOLD CROWN / TIARA       -->
   <!-- ============================================== -->
-  <g filter="url(#embossShadow)">
-    <!-- LEFT STEM OF THE 'R' -->
-    <!-- Base Top Left Serif -->
-    <path d="M 124 104 L 216 104 C 208 104 200 112 200 120 L 200 134 L 182 134 L 182 316 L 202 316 L 202 330 L 118 330 L 118 316 L 140 316 L 140 134 L 124 134 Z"
-          fill="url(#letterGold)" stroke="#744D09" stroke-width="1" />
-    <!-- 3D Bevel highlight on stem -->
-    <path d="M 140 134 L 152 134 L 152 316 L 140 316 Z" fill="#FFF8D6" opacity="0.45" />
+  <g filter="url(#goldGlow)" transform="translate(0, -6)">
+    <!-- Crown Base Band -->
+    <path d="M 212 96 C 226 93 286 93 300 96 L 297 104 C 283 102 229 102 215 104 Z" fill="url(#goldBright)" stroke="#694305" stroke-width="1" />
+    <!-- Crown Pearls along Base -->
+    <circle cx="222" cy="100" r="2.2" fill="#FFFFFF" />
+    <circle cx="239" cy="99" r="2.2" fill="#FFFFFF" />
+    <circle cx="256" cy="98.5" r="2.5" fill="#FFFFFF" />
+    <circle cx="273" cy="99" r="2.2" fill="#FFFFFF" />
+    <circle cx="290" cy="100" r="2.2" fill="#FFFFFF" />
 
-    <!-- TOP BOWL OF THE 'R' -->
-    <path d="M 182 104 L 278 104 C 330 104 366 128 366 174 C 366 214 332 236 288 240 L 214 240 L 214 220 L 276 220 C 308 220 334 204 334 172 C 334 140 308 126 274 126 L 182 126 Z"
-          fill="url(#letterGold)" stroke="#744D09" stroke-width="1" />
+    <!-- Crown Peaks / Spikes -->
+    <!-- Center Highest Peak -->
+    <path d="M 256 62 L 263 88 C 260 90 252 90 249 88 Z" fill="url(#goldRim)" stroke="#694305" stroke-width="0.8" />
+    <!-- Left Inner Peak -->
+    <path d="M 234 71 L 243 90 C 239 92 233 92 230 90 Z" fill="url(#goldRim)" stroke="#694305" stroke-width="0.8" />
+    <!-- Right Inner Peak -->
+    <path d="M 278 71 L 282 90 C 279 92 273 92 269 90 Z" fill="url(#goldRim)" stroke="#694305" stroke-width="0.8" />
+    <!-- Left Outer Peak -->
+    <path d="M 215 80 L 227 92 C 223 94 218 94 213 93 Z" fill="url(#goldRim)" stroke="#694305" stroke-width="0.8" />
+    <!-- Right Outer Peak -->
+    <path d="M 297 80 L 299 93 C 294 94 289 94 285 92 Z" fill="url(#goldRim)" stroke="#694305" stroke-width="0.8" />
 
-    <!-- GOLDEN FLOWER VINES / FILIGREE BRANCHING FROM LEFT SERIF -->
-    <!-- Stems -->
-    <path d="M 148 200 C 132 188 126 150 148 136 C 158 130 168 140 156 154 C 146 166 152 182 170 190"
-          fill="none" stroke="url(#letterGold)" stroke-width="4.5" stroke-linecap="round" />
-    <path d="M 148 240 C 124 228 112 264 128 288 C 136 298 152 284 144 270 C 138 258 152 246 168 250"
-          fill="none" stroke="url(#letterGold)" stroke-width="4.2" stroke-linecap="round" />
-    <path d="M 126 142 C 114 140 106 148 112 160 C 118 172 128 162 126 142 Z" fill="url(#letterGold)" />
-    <path d="M 112 268 C 102 266 98 276 104 286 C 110 294 120 286 112 268 Z" fill="url(#letterGold)" />
+    <!-- Crown Jewel Tips -->
+    <circle cx="256" cy="60" r="4.2" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="1" />
+    <circle cx="256" cy="59" r="1.5" fill="#FFFFFF" />
+    <circle cx="234" cy="69" r="3.2" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.8" />
+    <circle cx="278" cy="69" r="3.2" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.8" />
+    <circle cx="215" cy="78" r="2.6" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.6" />
+    <circle cx="297" cy="78" r="2.6" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.6" />
 
-    <!-- Gold Pearl Accents on vine -->
-    <circle cx="118" cy="188" r="4.5" fill="url(#letterGold)" stroke="#6E4807" stroke-width="0.8" />
-    <circle cx="112" cy="204" r="5.5" fill="url(#letterGold)" stroke="#6E4807" stroke-width="0.8" />
-    <circle cx="122" cy="220" r="4" fill="url(#letterGold)" stroke="#6E4807" stroke-width="0.8" />
+    <!-- Crown Cross / Crest Cross Top -->
+    <path d="M 256 50 L 256 57 M 253 53 L 259 53" stroke="url(#goldBright)" stroke-width="1.8" stroke-linecap="round" />
+  </g>
 
-    <!-- Pink Blossom 1 (Top Left Vine) -->
-    <g transform="translate(144, 160)">
-      <circle cx="-6" cy="-2" r="5" fill="url(#flowerPink)" />
-      <circle cx="4" cy="-7" r="5" fill="url(#flowerPink)" />
-      <circle cx="8" cy="3" r="5" fill="url(#flowerPink)" />
-      <circle cx="0" cy="8" r="5" fill="url(#flowerPink)" />
-      <circle cx="-7" cy="6" r="4.5" fill="url(#flowerPink)" />
-      <circle cx="1" cy="2" r="3" fill="#FFE082" stroke="#B8860B" stroke-width="0.8" />
+  <!-- ============================================== -->
+  <!-- CENTRAL HERALDIC MONOGRAM & LAUREL FLOURISHES  -->
+  <!-- ============================================== -->
+  <g filter="url(#goldGlow)">
+    <!-- Laurel Wreath Leaves (Left Side) -->
+    <g fill="url(#goldRim)" stroke="#5A3A03" stroke-width="0.6">
+      <path d="M 166 148 C 158 136 172 126 182 134 C 180 144 172 150 166 148 Z" />
+      <path d="M 148 180 C 138 170 150 158 162 164 C 160 174 154 182 148 180 Z" />
+      <path d="M 138 218 C 126 210 136 196 150 200 C 150 212 144 220 138 218 Z" />
+      <path d="M 138 258 C 126 254 132 240 146 242 C 148 254 144 262 138 258 Z" />
+      <path d="M 148 298 C 138 298 140 282 154 282 C 158 294 154 302 148 298 Z" />
+      <path d="M 168 334 C 158 336 158 322 172 318 C 178 328 174 336 168 334 Z" />
     </g>
 
-    <!-- Pink Blossom 2 (Lower Left Vine) -->
-    <g transform="translate(188, 236)">
-      <circle cx="-6" cy="-2" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="3" cy="-7" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="8" cy="2" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="1" cy="8" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="-7" cy="5" r="5" fill="url(#flowerPink)" />
-      <circle cx="1" cy="2" r="3.2" fill="#FFE082" stroke="#B8860B" stroke-width="0.8" />
+    <!-- Laurel Wreath Leaves (Right Side) -->
+    <g fill="url(#goldRim)" stroke="#5A3A03" stroke-width="0.6">
+      <path d="M 346 148 C 354 136 340 126 330 134 C 332 144 340 150 346 148 Z" />
+      <path d="M 364 180 C 374 170 362 158 350 164 C 352 174 358 182 364 180 Z" />
+      <path d="M 374 218 C 386 210 376 196 362 200 C 362 212 368 220 374 218 Z" />
+      <path d="M 374 258 C 386 254 380 240 366 242 C 364 254 368 262 374 258 Z" />
+      <path d="M 364 298 C 374 298 372 282 358 282 C 354 294 358 302 364 298 Z" />
+      <path d="M 344 334 C 354 336 354 322 340 318 C 334 328 338 336 344 334 Z" />
     </g>
 
-    <!-- Pink Bud (Left) -->
-    <g transform="translate(126, 192)">
-      <ellipse cx="0" cy="0" rx="5.5" ry="7.5" fill="url(#flowerPink)" transform="rotate(-30)" />
-      <path d="M -3 4 C -1 8 2 8 4 5" fill="none" stroke="url(#letterGold)" stroke-width="2" />
+    <!-- Wreath Vine Stems -->
+    <path d="M 186 138 C 152 186 142 270 178 338" fill="none" stroke="url(#goldBright)" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 326 138 C 360 186 370 270 334 338" fill="none" stroke="url(#goldBright)" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- ============================================== -->
+    <!-- MASTER MONOGRAM EMBLEM: "R" WITH ROYAL FLOURISH -->
+    <!-- ============================================== -->
+    <!-- Vertical Spine of R with Luxury Serifs -->
+    <path d="M 204 142 L 254 142 C 248 142 242 148 242 154 L 242 168 L 228 168 L 228 308 L 244 308 L 244 322 L 198 322 L 198 308 L 214 308 L 214 168 L 204 168 Z"
+          fill="url(#goldBright)" stroke="#5A3A03" stroke-width="1.5" />
+    <!-- 3D Bevel highlight on spine -->
+    <path d="M 214 168 L 222 168 L 222 308 L 214 308 Z" fill="#FFFFFF" opacity="0.4" />
+
+    <!-- Top Arch & Bowl of R -->
+    <path d="M 228 142 L 290 142 C 326 142 348 162 348 196 C 348 226 324 246 290 248 L 242 248 L 242 232 L 284 232 C 308 232 328 218 328 196 C 328 172 308 158 284 158 L 228 158 Z"
+          fill="url(#goldBright)" stroke="#5A3A03" stroke-width="1.5" />
+    <!-- Inner Bowl Cutout Accent -->
+    <circle cx="282" cy="195" r="3" fill="url(#goldRim)" />
+
+    <!-- Sweeping Regal Leg of R with Royal S-Curve & Saree Pleat Silhouette -->
+    <path d="M 276 238 C 292 254 316 272 334 290 C 352 308 368 324 372 332 C 356 332 332 320 306 292 C 286 272 268 254 250 244 C 262 250 282 274 298 298 C 314 322 330 338 348 344 C 330 342 304 326 284 302 C 264 278 252 256 248 244 Z"
+          fill="url(#goldRim)" stroke="#5A3A03" stroke-width="1.2" />
+
+    <!-- Polished Gold Filigree Accents intertwining with R -->
+    <!-- Left Branching Vine -->
+    <path d="M 214 210 C 196 200 188 170 206 156 C 214 150 222 158 214 168 C 206 178 210 192 226 198"
+          fill="none" stroke="url(#goldBright)" stroke-width="3.5" stroke-linecap="round" />
+    <!-- Lower Left Flourish -->
+    <path d="M 214 260 C 190 248 182 280 198 300 C 206 310 220 298 212 286 C 206 276 216 264 232 268"
+          fill="none" stroke="url(#goldBright)" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Royal Stars Flanking the Monogram -->
+    <!-- Left 5-point Star -->
+    <g transform="translate(182, 240) scale(0.9)">
+      <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.8" />
+      <circle cx="0" cy="0" r="1.5" fill="#FFFFFF" />
+    </g>
+    <!-- Right 5-point Star -->
+    <g transform="translate(330, 240) scale(0.9)">
+      <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="url(#goldBright)" stroke="#5A3A03" stroke-width="0.8" />
+      <circle cx="0" cy="0" r="1.5" fill="#FFFFFF" />
     </g>
   </g>
 
   <!-- ============================================== -->
-  <!-- INDIAN WOMAN PROFILE SILHOUETTE + JEWELRY -->
+  <!-- LUXURY BANNER & TYPOGRAPHY: RENU FASHION HUB   -->
   <!-- ============================================== -->
-  <g filter="url(#innerDepth)">
-    <!-- Elegant Back/Shoulder & Face Profile Silhouette (Deep Mocha / Bronze Silhouette) -->
-    <path d="M 276 130 C 266 120 274 100 292 92 C 304 86 318 90 326 98 C 334 94 344 98 346 108 C 348 116 342 124 336 128 C 342 136 344 148 338 156 C 330 166 318 166 312 170 C 314 186 332 208 346 226 C 336 224 316 200 306 182 C 298 172 292 164 286 160 C 278 152 274 142 276 130 Z"
-          fill="#4A2E1B" />
+  <!-- Curved Architectural Plaque / Banner Frame -->
+  <g filter="url(#goldGlow)">
+    <!-- Dark Inset Plaque for Text Contrast -->
+    <path d="M 108 382 C 160 372 352 372 404 382 C 408 402 402 438 392 454 C 342 470 170 470 120 454 C 110 438 104 402 108 382 Z"
+          fill="#0D0B09" stroke="url(#goldRim)" stroke-width="2" />
+    <path d="M 116 388 C 164 380 348 380 396 388 C 392 410 388 436 382 448 C 336 462 176 462 130 448 C 124 436 120 410 116 388 Z"
+          fill="none" stroke="url(#goldBright)" stroke-width="1" stroke-dasharray="2,4" opacity="0.8" />
 
-    <!-- Delicate Profile features (Nose, Lips, Chin) facing right -->
-    <path d="M 284 130 C 286 134 290 136 294 137 C 291 140 288 143 291 146 C 294 149 288 154 286 156 C 284 158 280 156 278 152 Z"
-          fill="#543622" />
-
-    <!-- Graceful Hair tendril curling at neck -->
-    <path d="M 336 142 C 346 154 348 168 342 176 C 340 172 342 160 336 152 Z" fill="#3D2414" />
-
-    <!-- Pink Flowers in her hair bun -->
-    <g transform="translate(318, 116)">
-      <circle cx="-5" cy="-2" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="3" cy="-6" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="8" cy="1" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="2" cy="7" r="5.5" fill="url(#flowerPink)" />
-      <circle cx="-6" cy="5" r="5" fill="url(#flowerPink)" />
-      <circle cx="1" cy="1" r="3" fill="#FFE082" />
-    </g>
-    <g transform="translate(334, 134)">
-      <circle cx="-4" cy="-2" r="4.5" fill="url(#flowerPink)" />
-      <circle cx="2" cy="-5" r="4.5" fill="url(#flowerPink)" />
-      <circle cx="6" cy="1" r="4.5" fill="url(#flowerPink)" />
-      <circle cx="1" cy="6" r="4.5" fill="url(#flowerPink)" />
-      <circle cx="-4" cy="4" r="4" fill="url(#flowerPink)" />
-      <circle cx="1" cy="1" r="2.5" fill="#FFE082" />
-    </g>
-
-    <!-- Traditional Gold Jhumka Earring -->
-    <g transform="translate(290, 150)">
-      <circle cx="0" cy="0" r="2.8" fill="url(#letterGold)" />
-      <path d="M -4 4 C -4 3 4 3 4 4 L 5 7 L -5 7 Z" fill="url(#letterGold)" stroke="#6E4807" stroke-width="0.6" />
-      <!-- Hanging tiny pearls -->
-      <circle cx="-3.5" cy="9" r="1" fill="#FFF2B8" />
-      <circle cx="0" cy="9.5" r="1.2" fill="#FFF2B8" />
-      <circle cx="3.5" cy="9" r="1" fill="#FFF2B8" />
-    </g>
-  </g>
-
-  <!-- ============================================== -->
-  <!-- LUXURIOUS PINK & GOLD EMBROIDERED SAREE (THE R LEG) -->
-  <!-- ============================================== -->
-  <g filter="url(#embossShadow)">
-    <!-- Main Saree Body Draped & Flowing (Forms the sweeping leg of the R) -->
-    <path d="M 264 196 C 286 216 324 238 350 258 C 382 284 414 316 424 332 C 400 334 354 314 308 274 C 274 244 246 228 206 220 C 234 232 264 266 288 300 C 316 338 344 362 376 374 C 342 372 296 348 266 312 C 234 274 212 242 204 220 Z"
-          fill="url(#sareePink)" stroke="#880E4F" stroke-width="1.2" />
-
-    <!-- Upper Saree Pallu Pleats with Shimmer and Gold Borders -->
-    <path d="M 264 196 C 284 210 306 230 326 250 C 300 240 274 220 252 206 Z" fill="url(#sareeHighlight)" />
-    <path d="M 280 208 C 298 224 322 246 344 268 C 322 258 296 236 272 218 Z" fill="url(#sareePink)" opacity="0.8" />
-
-    <!-- Sweeping Lower Saree Flare / Train -->
-    <path d="M 226 222 C 248 244 312 296 364 336 C 392 358 418 368 424 368 C 398 368 362 346 322 312 C 276 274 240 242 220 224 Z"
-          fill="url(#sareeHighlight)" />
-
-    <!-- Golden Zari Border on Saree Pallu & Edges -->
-    <path d="M 264 196 C 290 220 334 248 364 274 C 394 302 422 330 424 334 C 418 334 388 310 354 280 C 324 252 282 224 258 202 Z"
-          fill="url(#letterGold)" />
-
-    <!-- Detailed Golden Floral Embroidery Motifs on Pink Saree -->
-    <!-- Flower Motif 1 -->
-    <g transform="translate(300, 238) scale(0.7)">
-      <circle cx="0" cy="0" r="3" fill="#FFF2B8" />
-      <circle cx="-5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="0" cy="-6" r="3" fill="url(#letterGold)" />
-      <circle cx="5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="4" cy="4" r="3" fill="url(#letterGold)" />
-      <circle cx="-4" cy="4" r="3" fill="url(#letterGold)" />
-    </g>
-    <!-- Flower Motif 2 -->
-    <g transform="translate(332, 272) scale(0.8)">
-      <circle cx="0" cy="0" r="3" fill="#FFF2B8" />
-      <circle cx="-5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="0" cy="-6" r="3" fill="url(#letterGold)" />
-      <circle cx="5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="4" cy="4" r="3" fill="url(#letterGold)" />
-      <circle cx="-4" cy="4" r="3" fill="url(#letterGold)" />
-    </g>
-    <!-- Flower Motif 3 -->
-    <g transform="translate(366, 310) scale(0.85)">
-      <circle cx="0" cy="0" r="3" fill="#FFF2B8" />
-      <circle cx="-5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="0" cy="-6" r="3" fill="url(#letterGold)" />
-      <circle cx="5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="4" cy="4" r="3" fill="url(#letterGold)" />
-      <circle cx="-4" cy="4" r="3" fill="url(#letterGold)" />
-    </g>
-    <!-- Flower Motif 4 -->
-    <g transform="translate(398, 344) scale(0.7)">
-      <circle cx="0" cy="0" r="3" fill="#FFF2B8" />
-      <circle cx="-5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="0" cy="-6" r="3" fill="url(#letterGold)" />
-      <circle cx="5" cy="-2" r="3" fill="url(#letterGold)" />
-      <circle cx="4" cy="4" r="3" fill="url(#letterGold)" />
-      <circle cx="-4" cy="4" r="3" fill="url(#letterGold)" />
-    </g>
-
-    <!-- Delicate Gold Vine Embroidery connecting motifs -->
-    <path d="M 286 224 Q 320 252 352 290 Q 382 324 412 352"
-          fill="none" stroke="url(#letterGold)" stroke-width="2.2" stroke-linecap="round" />
-    <path d="M 252 208 Q 284 236 322 278 Q 358 316 386 354"
-          fill="none" stroke="url(#letterGold)" stroke-width="1.8" stroke-dasharray="3,3" />
-
-    <!-- Polished Golden Curve on the Leg Underbelly -->
-    <path d="M 204 220 C 230 240 270 290 306 338 C 334 374 366 394 402 396 C 362 392 322 364 286 322 C 252 282 226 244 204 220 Z"
-          fill="url(#letterGold)" stroke="#684206" stroke-width="1" />
-  </g>
-
-  <!-- ============================================== -->
-  <!-- TYPOGRAPHY: RENU / FASHION HUB / ORNAMENT -->
-  <!-- ============================================== -->
-  <!-- "RENU" TEXT IN LUXURY SERIF GOLD -->
-  <g filter="url(#embossShadow)">
-    <text x="256" y="420"
+    <!-- "RENU" DISPLAY TITLE (Prominent, High Legibility at Small Favicon Scales) -->
+    <text x="256" y="418"
           text-anchor="middle"
           font-family="'Playfair Display', 'Cinzel', 'Georgia', serif"
-          font-size="64"
-          font-weight="700"
+          font-size="34"
+          font-weight="900"
           letter-spacing="5"
-          fill="url(#letterGold)"
-          stroke="#724B08"
-          stroke-width="1.2">RENU</text>
-  </g>
+          fill="url(#goldBright)"
+          stroke="#422902"
+          stroke-width="0.8">RENU</text>
 
-  <!-- "FASHION HUB" WITH HORIZONTAL ACCENT LINES -->
-  <g filter="url(#softShadow)">
-    <!-- Left Accent Line -->
-    <line x1="136" y1="442" x2="178" y2="442" stroke="url(#letterGold)" stroke-width="1.8" stroke-linecap="round" />
-    <!-- Center Text -->
-    <text x="256" y="446"
+    <!-- Horizontal Divider with Diamond -->
+    <line x1="164" y1="428" x2="228" y2="428" stroke="url(#goldRim)" stroke-width="1.2" stroke-linecap="round" />
+    <polygon points="256,425 259,428 256,431 253,428" fill="url(#goldBright)" />
+    <line x1="284" y1="428" x2="348" y2="428" stroke="url(#goldRim)" stroke-width="1.2" stroke-linecap="round" />
+
+    <!-- "FASHION HUB" SUBTITLE -->
+    <text x="256" y="445"
           text-anchor="middle"
           font-family="'Plus Jakarta Sans', 'Montserrat', 'Helvetica Neue', sans-serif"
-          font-size="16"
-          font-weight="600"
-          letter-spacing="6.5"
-          fill="url(#letterGoldDark)">FASHION HUB</text>
-    <!-- Right Accent Line -->
-    <line x1="334" y1="442" x2="376" y2="442" stroke="url(#letterGold)" stroke-width="1.8" stroke-linecap="round" />
+          font-size="13"
+          font-weight="800"
+          letter-spacing="5"
+          fill="url(#goldRim)">FASHION HUB</text>
   </g>
 
-  <!-- BOTANICAL GOLD ORNAMENT AT VERY BOTTOM -->
-  <g transform="translate(256, 464)" filter="url(#softShadow)">
-    <!-- Center Leaf -->
-    <path d="M 0 -8 C -4 -4 -3 2 0 6 C 3 2 4 -4 0 -8 Z" fill="url(#letterGold)" />
+  <!-- ============================================== -->
+  <!-- BOTTOM ORNAMENTAL CREST / FLEUR-DE-LIS FINIAL -->
+  <!-- ============================================== -->
+  <g transform="translate(256, 474)" filter="url(#goldGlow)">
+    <!-- Central Palmette / Finial -->
+    <path d="M 0 -8 C -4 -5 -4 1 0 5 C 4 1 4 -5 0 -8 Z" fill="url(#goldBright)" />
     <!-- Left Leaf -->
-    <path d="M -2 0 C -7 -3 -12 0 -13 4 C -9 5 -4 3 -2 0 Z" fill="url(#letterGold)" />
+    <path d="M -2 -1 C -7 -3 -12 0 -13 4 C -9 5 -4 2 -2 -1 Z" fill="url(#goldRim)" />
     <!-- Right Leaf -->
-    <path d="M 2 0 C 7 -3 12 0 13 4 C 9 5 4 3 2 0 Z" fill="url(#letterGold)" />
-    <!-- Tiny Center Gold Bead -->
-    <circle cx="0" cy="2" r="1.8" fill="#FFF2B8" stroke="#724B08" stroke-width="0.5" />
+    <path d="M 2 -1 C 7 -3 12 0 13 4 C 9 5 4 2 2 -1 Z" fill="url(#goldRim)" />
+    <!-- Diamond Jewel Accent -->
+    <circle cx="0" cy="2" r="1.8" fill="#FFFFFF" />
   </g>
 
 </svg>

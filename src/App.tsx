@@ -5608,8 +5608,42 @@ export default function App() {
     termsOfService: DEFAULT_TERMS_OF_SERVICE,
   });
 
-  const [posts, setPosts] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+// Authoritative initial featured product to prevent empty state flash on initial load
+const INITIAL_FEATURED_PRODUCT = {
+  id: 1784618907337,
+  name: "Handcrafted Pink Zari Kanjivaram Silk Saree",
+  url: "https://knrxnoxmboslqkypxbkt.supabase.co/storage/v1/object/public/products/1784618907337_0.avif",
+  category: "sarees",
+  price: 4299,
+  originalPrice: 7999,
+  rating: 4.9,
+  originTag: "Handcrafted Zari",
+  description: "Pure handcrafted Kanjivaram silk saree with woven floral zari border, contrasting rich pallu, and matching blouse piece.",
+  affiliateLink: "https://amazon.in",
+  store: "Amazon",
+  badge: "Featured Pick"
+};
+
+  const [posts, setPosts] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("rfh_cached_posts");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [products, setProducts] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("rfh_cached_products");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [INITIAL_FEATURED_PRODUCT];
+  });
   const [messages, setMessages] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [isBlogsLoaded, setIsBlogsLoaded] = useState(false);
@@ -5912,11 +5946,18 @@ export default function App() {
     let active = true;
 
     async function loadData() {
-      // 1. Load Profile
+      // Parallelize all catalogue fetches to load content in a single concurrent roundtrip
       try {
-        const res = await fetch("/api/settings/profile");
-        if (res.ok && active) {
-          const data = await res.json();
+        const [profileRes, postsRes, productsRes, blogsRes] = await Promise.all([
+          fetch("/api/settings/profile").catch(() => null),
+          fetch("/api/posts").catch(() => null),
+          fetch("/api/products").catch(() => null),
+          fetch("/api/blogs").catch(() => null),
+        ]);
+
+        // 1. Process Profile
+        if (profileRes && profileRes.ok && active) {
+          const data = await profileRes.json();
           setProfile({
             name: data.name || "Renu Fashion Hub",
             bio: data.bio || "",
@@ -5925,62 +5966,50 @@ export default function App() {
             termsOfService: data.termsOfService || DEFAULT_TERMS_OF_SERVICE,
           });
         }
-      } catch (err) {
-        console.error("Error loading profile:", err);
-      } finally {
         if (active) setIsDataLoaded(true);
-      }
 
-      // 2. Load Posts
-      try {
-        const res = await fetch("/api/posts");
-        if (res.ok && active) {
-          const data = await res.json();
+        // 2. Process Posts
+        if (postsRes && postsRes.ok && active) {
+          const data = await postsRes.json();
           setPosts(data);
           setTempPosts(prev => prev.length === 0 ? data : prev);
           setPostsError(false);
+          try {
+            if (Array.isArray(data) && data.length > 0) {
+              localStorage.setItem("rfh_cached_posts", JSON.stringify(data.slice(0, 20)));
+            }
+          } catch (e) {}
         } else if (active) {
           setPostsError(true);
         }
-      } catch (err) {
-        console.error("Error loading posts:", err);
-        if (active) setPostsError(true);
-      } finally {
         if (active) setIsPostsLoaded(true);
-      }
 
-      // 3. Load Products
-      try {
-        const res = await fetch("/api/products");
-        if (res.ok && active) {
-          const data = await res.json();
+        // 3. Process Products
+        if (productsRes && productsRes.ok && active) {
+          const data = await productsRes.json();
           setProducts(data);
           setProductsError(false);
+          try {
+            if (Array.isArray(data) && data.length > 0) {
+              localStorage.setItem("rfh_cached_products", JSON.stringify(data.slice(0, 30)));
+            }
+          } catch (e) {}
         } else if (active) {
           setProductsError(true);
         }
-      } catch (err) {
-        console.error("Error loading products:", err);
-        if (active) setProductsError(true);
-      } finally {
         if (active) setIsProductsLoaded(true);
-      }
 
-      // 4. Load Blogs
-      try {
-        const res = await fetch("/api/blogs");
-        if (res.ok && active) {
-          const data = await res.json();
+        // 4. Process Blogs
+        if (blogsRes && blogsRes.ok && active) {
+          const data = await blogsRes.json();
           setBlogs(data);
           setBlogsError(false);
         } else if (active) {
           setBlogsError(true);
         }
-      } catch (err) {
-        console.error("Error loading blogs:", err);
-        if (active) setBlogsError(true);
-      } finally {
         if (active) setIsBlogsLoaded(true);
+      } catch (err) {
+        console.error("Error loading catalogue data:", err);
       }
 
       // 5. Load Messages (Admin only)

@@ -1,6 +1,8 @@
-// Dynamic sitemap generator for Renu Fashion Hub (Supabase-backed)
+// Dynamic sitemap generator for Renu Fashion Hub (Supabase-backed with backup fallback)
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -20,7 +22,6 @@ function escapeXml(unsafe) {
   }[c]));
 }
 
-// Only emit a real lastmod from an authoritative timestamp; otherwise omit.
 function realLastmod(row) {
   const ts = row.updated_at || row.timestamp || row.created_at;
   if (!ts) return null;
@@ -29,31 +30,58 @@ function realLastmod(row) {
   return d.toISOString().split('.')[0] + 'Z';
 }
 
-async function fetchCollection(tableName) {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return [];
+function getLocalBackup(filename) {
   try {
-    const { data, error } = await supabase.from(tableName).select('*');
-    if (error) {
-      console.error(`Sitemap: failed to fetch ${tableName}:`, error.message);
-      return [];
+    const backupPath = path.join(process.cwd(), "backups", filename);
+    if (fs.existsSync(backupPath)) {
+      const content = fs.readFileSync(backupPath, "utf8");
+      return JSON.parse(content);
     }
-    return (data || [])
-      .filter((row) => {
-        if (row.id === 999999 || row.category === "site_settings") return false;
-        if (String(row.id) === "1782274718063" || row.id === 1782274718063) return false;
-        if (row.title === "ggdf") return false;
-        const status = (row.status || "").toLowerCase();
-        if (status === "draft" || status === "pending_review" || status === "private") return false;
-        return true;
-      })
-      .map((row) => ({
-        id: String(row.id),
-        lastmod: realLastmod(row),
-      }));
-  } catch (err) {
-    console.error(`Sitemap: fetch error for ${tableName}:`, err);
-    return [];
+  } catch (e) {
+    console.warn(`Could not read local backup ${filename}:`, e);
   }
+  return [];
+}
+
+async function fetchCollection(tableName) {
+  if (SUPABASE_URL && !SUPABASE_URL.includes("placeholder") && SUPABASE_SERVICE_ROLE_KEY && !SUPABASE_SERVICE_ROLE_KEY.includes("placeholder")) {
+    try {
+      const { data, error } = await supabase.from(tableName).select('*');
+      if (!error && Array.isArray(data) && data.length > 0) {
+        return data
+          .filter((row) => {
+            if (row.id === 999999 || row.category === "site_settings") return false;
+            if (String(row.id) === "1782274718063" || row.id === 1782274718063) return false;
+            if (row.title === "ggdf") return false;
+            const status = (row.status || "").toLowerCase();
+            if (status === "draft" || status === "pending_review" || status === "private") return false;
+            return true;
+          })
+          .map((row) => ({
+            id: String(row.id),
+            lastmod: realLastmod(row),
+          }));
+      }
+    } catch (err) {
+      console.warn(`Sitemap: fetch error for ${tableName}, using backup:`, err);
+    }
+  }
+
+  // Fallback to local backup
+  const localData = getLocalBackup(`${tableName}.json`);
+  return (localData || [])
+    .filter((row) => {
+      if (row.id === 999999 || row.category === "site_settings") return false;
+      if (String(row.id) === "1782274718063" || row.id === 1782274718063) return false;
+      if (row.title === "ggdf") return false;
+      const status = (row.status || "").toLowerCase();
+      if (status === "draft" || status === "pending_review" || status === "private") return false;
+      return true;
+    })
+    .map((row) => ({
+      id: String(row.id),
+      lastmod: realLastmod(row),
+    }));
 }
 
 function urlBlock({ loc, lastmod, changefreq, priority }) {
@@ -75,19 +103,19 @@ export default async function handler(req, res) {
 
     const staticPages = [
       { loc: `${baseUrl}/`, changefreq: "daily", priority: "1.0" },
+      { loc: `${baseUrl}/about`, changefreq: "weekly", priority: "0.8" },
+      { loc: `${baseUrl}/contact`, changefreq: "weekly", priority: "0.8" },
+      { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.5" },
+      { loc: `${baseUrl}/terms-of-service`, changefreq: "monthly", priority: "0.5" },
+      { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.5" },
+      { loc: `${baseUrl}/affiliate-disclosure`, changefreq: "monthly", priority: "0.5" },
+      { loc: `${baseUrl}/cookie-policy`, changefreq: "monthly", priority: "0.5" },
+      { loc: `${baseUrl}/blog`, changefreq: "daily", priority: "0.9" },
       { loc: `${baseUrl}/category/sarees`, changefreq: "weekly", priority: "0.8" },
       { loc: `${baseUrl}/category/kurtas`, changefreq: "weekly", priority: "0.8" },
       { loc: `${baseUrl}/category/lehengas`, changefreq: "weekly", priority: "0.8" },
       { loc: `${baseUrl}/category/dresses`, changefreq: "weekly", priority: "0.8" },
       { loc: `${baseUrl}/category/jewelry`, changefreq: "weekly", priority: "0.8" },
-      { loc: `${baseUrl}/about`, changefreq: "monthly", priority: "0.7" },
-      { loc: `${baseUrl}/blog`, changefreq: "daily", priority: "0.9" },
-      { loc: `${baseUrl}/contact`, changefreq: "monthly", priority: "0.6" },
-      { loc: `${baseUrl}/privacy-policy`, changefreq: "yearly", priority: "0.3" },
-      { loc: `${baseUrl}/terms-of-service`, changefreq: "yearly", priority: "0.3" },
-      { loc: `${baseUrl}/disclaimer`, changefreq: "yearly", priority: "0.3" },
-      { loc: `${baseUrl}/affiliate-disclosure`, changefreq: "yearly", priority: "0.3" },
-      { loc: `${baseUrl}/cookie-policy`, changefreq: "yearly", priority: "0.3" },
     ];
 
     const urls = [];
@@ -100,18 +128,18 @@ export default async function handler(req, res) {
       priority: "0.8",
     })));
 
-    blogs.forEach(b => urls.push(urlBlock({
-      loc: `${baseUrl}/blog/${escapeXml(encodeURIComponent(b.id))}`,
-      lastmod: b.lastmod,
-      changefreq: "monthly",
-      priority: "0.7",
-    })));
-
     posts.forEach(p => urls.push(urlBlock({
       loc: `${baseUrl}/post/${escapeXml(encodeURIComponent(p.id))}`,
       lastmod: p.lastmod,
-      changefreq: "monthly",
-      priority: "0.6",
+      changefreq: "weekly",
+      priority: "0.7",
+    })));
+
+    blogs.forEach(b => urls.push(urlBlock({
+      loc: `${baseUrl}/blog/${escapeXml(encodeURIComponent(b.id))}`,
+      lastmod: b.lastmod,
+      changefreq: "weekly",
+      priority: "0.8",
     })));
 
     const xml = [

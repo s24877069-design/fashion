@@ -1125,6 +1125,10 @@ export default async function handler(req, res) {
     const ogType = escapeHtml(payload.ogType || "website");
 
     const canonicalTag = u ? `<link rel="canonical" href="${u}" />` : "";
+    const isHomePage = pageName === "home" || type === "home" || (!type && !pageName);
+    const homePreloadTag = isHomePage
+      ? `<link rel="preload" as="image" href="https://knrxnoxmboslqkypxbkt.supabase.co/storage/v1/object/public/products/1784618907337_0.avif" fetchpriority="high" />`
+      : "";
     const robotsTag = is404
       ? `<meta name="robots" content="noindex, follow" />`
       : isNonIndexable
@@ -1137,6 +1141,7 @@ export default async function handler(req, res) {
     <meta name="author" content="${escapeHtml(authorName)}" />
     ${robotsTag}
     ${canonicalTag}
+    ${homePreloadTag}
 
     <meta property="og:site_name" content="${escapeHtml(siteName)}" />
     <meta property="og:title" content="${t}" />
