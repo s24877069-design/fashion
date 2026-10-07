@@ -5608,22 +5608,6 @@ export default function App() {
     termsOfService: DEFAULT_TERMS_OF_SERVICE,
   });
 
-// Authoritative initial featured product to prevent empty state flash on initial load
-const INITIAL_FEATURED_PRODUCT = {
-  id: 1784618907337,
-  name: "Handcrafted Pink Zari Kanjivaram Silk Saree",
-  url: "https://knrxnoxmboslqkypxbkt.supabase.co/storage/v1/object/public/products/1784618907337_0.avif",
-  category: "sarees",
-  price: 4299,
-  originalPrice: 7999,
-  rating: 4.9,
-  originTag: "Handcrafted Zari",
-  description: "Pure handcrafted Kanjivaram silk saree with woven floral zari border, contrasting rich pallu, and matching blouse piece.",
-  affiliateLink: "https://amazon.in",
-  store: "Amazon",
-  badge: "Featured Pick"
-};
-
   const [posts, setPosts] = useState<any[]>(() => {
     try {
       const cached = localStorage.getItem("rfh_cached_posts");
@@ -5639,10 +5623,13 @@ const INITIAL_FEATURED_PRODUCT = {
       const cached = localStorage.getItem("rfh_cached_products");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const valid = parsed.filter((p: any) => p && p.id && String(p.id) !== "1784618907337");
+          if (valid.length > 0) return valid;
+        }
       }
     } catch (e) {}
-    return [INITIAL_FEATURED_PRODUCT];
+    return [];
   });
   const [messages, setMessages] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -9316,7 +9303,7 @@ const INITIAL_FEATURED_PRODUCT = {
               <Hero
                 handleNavigate={handleNavigate}
                 posts={posts}
-                featuredProduct={products[0]}
+                featuredProduct={products.length > 0 ? products[0] : null}
                 profileAvatar={profile.avatar}
                 profileName={profile.name}
               />
