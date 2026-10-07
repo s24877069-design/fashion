@@ -1426,10 +1426,7 @@ async function startServer() {
 
       const isSpecialAdmin = pageName === "admin" || pageName === "login";
       const canonicalTag = (url && !isSpecialAdmin) ? `<link rel="canonical" href="${escapeXml(url)}" />` : "";
-      const isHomePage = pageName === "home" || req.path === "/";
-      const homePreloadTag = isHomePage
-        ? `<link rel="preload" as="image" href="https://knrxnoxmboslqkypxbkt.supabase.co/storage/v1/object/public/products/1784618907337_0.avif" fetchpriority="high" />`
-        : "";
+      const homePreloadTag = "";
       const robotsTag = is404
         ? `<meta name="robots" content="noindex, follow" />`
         : isSpecialAdmin
