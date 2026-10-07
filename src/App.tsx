@@ -4028,8 +4028,8 @@ const BlogDetailPage = ({ blogs, theme, navigate, isLoaded }: { blogs: any[]; th
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
 
-        {/* Compliant In-Article Google Ad Placement */}
-        <GoogleAdSenseUnit theme={theme} className="my-8" />
+        {/* Compliant In-Article Google Ad Placement - Official Unit 7604039641 */}
+        <GoogleAdSenseUnit slot="7604039641" theme={theme} className="my-8" />
 
         {/* Editorial & Affiliate Transparency Footer Card */}
         <div className={`mt-10 p-6 rounded-2xl border ${
@@ -5453,7 +5453,7 @@ const CompanyStatisticsSection = ({
 };
 
 const GoogleAdSenseUnit = React.memo(({ 
-  slot, 
+  slot = "7604039641", 
   format = "auto", 
   responsive = true, 
   className = "",
@@ -5537,7 +5537,7 @@ const GoogleAdSenseUnit = React.memo(({
           className="adsbygoogle"
           style={{ display: "block", width: "100%", textAlign: "center" }}
           data-ad-client="ca-pub-8650082341590465"
-          data-ad-slot={slot || "1234567890"}
+          data-ad-slot={slot || "7604039641"}
           data-ad-format={format}
           data-full-width-responsive={responsive ? "true" : "false"}
         />
@@ -9325,8 +9325,8 @@ export default function App() {
                   <LatestArrivalsCarousel products={products} posts={posts} navigate={handleNavigate} />
                 </div>
 
-                {/* AdSense Unit */}
-                <GoogleAdSenseUnit className="mb-10" />
+                {/* Official Google AdSense Unit - Renu Fashion Hub Revenue (7604039641) */}
+                <GoogleAdSenseUnit slot="7604039641" className="mb-10" />
 
                 {/* Filter & Search Bar */}
                 <div className="mb-8">
