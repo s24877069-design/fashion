@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "reacth";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Sparkles, 
@@ -70,7 +70,6 @@ export const Hero: React.FC<HeroProps> = ({
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const isWheeling = useRef(false);
   const touchStartY = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -154,23 +153,19 @@ export const Hero: React.FC<HeroProps> = ({
   // If real image posts exist: use current post
   // If zero image posts exist: use authentic featured product from catalogue (NEVER a fake/unrelated fallback image)
   const currentPost = hasEligiblePosts ? eligiblePosts[currentIndex] : null;
+  const hasRealItem = Boolean(hasEligiblePosts ? currentPost : (featuredProduct && featuredProduct.id));
 
   const displayImageUrl = hasEligiblePosts
     ? (currentPost?.url || currentPost?.image_url || "")
-    : (featuredProduct?.url || "");
+    : (featuredProduct?.url || featuredProduct?.image || featuredProduct?.image_url || "");
 
   const displayTitle = hasEligiblePosts
-    ? (currentPost?.name || currentPost?.title || currentPost?.caption || "Curated Indian Style")
-    : (featuredProduct?.name || "Handcrafted Kanjivaram Silk Saree");
+    ? (currentPost?.name || currentPost?.title || currentPost?.caption || "")
+    : (featuredProduct?.name || "");
 
   const displayCategory = hasEligiblePosts
     ? (currentPost?.category || "Photo Gallery")
-    : (featuredProduct?.category ? (featuredProduct.category.charAt(0).toUpperCase() + featuredProduct.category.slice(1)) : "Curator's Showcase");
-
-  // Reset imageLoaded on image URL change to ensure seamless fade-in
-  useEffect(() => {
-    setImageLoaded(false);
-  }, [displayImageUrl]);
+    : (featuredProduct?.category ? (featuredProduct.category.charAt(0).toUpperCase() + featuredProduct.category.slice(1)) : "");
 
   return (
     <section className="relative overflow-hidden pt-4 pb-10 sm:pt-10 sm:pb-16 md:pt-16 md:pb-24">
@@ -274,20 +269,19 @@ export const Hero: React.FC<HeroProps> = ({
                 {/* Fixed Controlled Aspect Ratio (4:5) */}
                 <div className="aspect-[4/5] relative overflow-hidden bg-stone-900">
                   
-                  {/* Luxury Loading Shimmer Base (Visible while image is loading or URL is resolving) */}
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
-                    <div className="w-14 h-14 rounded-full bg-stone-800/80 border border-amber-500/30 flex items-center justify-center mb-3 shadow-lg shadow-black/50">
-                      <Sparkles className="w-6 h-6 text-amber-400" />
+                  {/* Clean Neutral Loading Base (ONLY visible when image URL is not available yet) */}
+                  {!displayImageUrl && (
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none z-10">
+                      <div className="w-10 h-10 rounded-full bg-stone-800/80 border border-stone-700/60 flex items-center justify-center mb-3 shadow-lg shadow-black/50 animate-pulse">
+                        <Sparkles className="w-5 h-5 text-amber-400/80" />
+                      </div>
+                      <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">
+                        Loading Featured Piece...
+                      </span>
                     </div>
-                    <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest mb-1">
-                      Curator's Haute Pick
-                    </span>
-                    <span className="text-[10px] text-stone-400">
-                      Loading handpicked luxury style...
-                    </span>
-                  </div>
+                  )}
 
-                  {/* Virtualized Animated Post Slide when multi-posts exist, clean static slide for showcase */}
+                  {/* Real Image Render: Always visible at 100% opacity as soon as URL is available */}
                   {displayImageUrl ? (
                     hasMultiplePosts ? (
                       <AnimatePresence initial={false} custom={direction} mode="popLayout">
@@ -315,15 +309,17 @@ export const Hero: React.FC<HeroProps> = ({
                         >
                           <img
                             src={displayImageUrl}
-                            alt={displayTitle}
-                            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-103 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                            alt={displayTitle || "Featured Style"}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             loading="eager"
+                            fetchPriority="high"
                             decoding="async"
                             referrerPolicy="no-referrer"
-                            onLoad={() => setImageLoaded(true)}
                             onError={(e) => {
                               const target = e.currentTarget;
-                              target.style.display = "none";
+                              if (currentPost?.image_url && target.src !== currentPost.image_url) {
+                                target.src = currentPost.image_url;
+                              }
                             }}
                           />
                         </motion.div>
@@ -332,15 +328,17 @@ export const Hero: React.FC<HeroProps> = ({
                       <div className="absolute inset-0 w-full h-full z-10">
                         <img
                           src={displayImageUrl}
-                          alt={displayTitle}
-                          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-103 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                          alt={displayTitle || "Featured Piece"}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           loading="eager"
+                          fetchPriority="high"
                           decoding="async"
                           referrerPolicy="no-referrer"
-                          onLoad={() => setImageLoaded(true)}
                           onError={(e) => {
                             const target = e.currentTarget;
-                            target.style.display = "none";
+                            if (featuredProduct?.image && target.src !== featuredProduct.image) {
+                              target.src = featuredProduct.image;
+                            }
                           }}
                         />
                       </div>
@@ -348,10 +346,10 @@ export const Hero: React.FC<HeroProps> = ({
                   ) : null}
 
                   {/* Gradient Scrim for Readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/20 to-stone-950/30 pointer-events-none z-15" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/20 to-transparent pointer-events-none z-20" />
 
                   {/* Top Bar: Curator Badge (+ Dynamic Indicator ONLY when real multiple posts exist) */}
-                  <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between pointer-events-none z-20">
+                  <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between pointer-events-none z-30">
                     <div className="px-2.5 py-1 sm:px-3 rounded-full bg-stone-900/85 backdrop-blur-md text-amber-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-amber-400/30 flex items-center gap-1.5 shadow-md">
                       <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
                       <span>{hasEligiblePosts ? "Curator's Lookbook" : "Curator's Showcase"}</span>
@@ -391,68 +389,72 @@ export const Hero: React.FC<HeroProps> = ({
                   )}
 
                   {/* Bottom Editorial Content Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-20">
-                    <div className="p-3.5 sm:p-4 rounded-2xl bg-white/92 dark:bg-stone-900/92 backdrop-blur-md border border-white/50 dark:border-stone-800 shadow-xl">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
-                          {displayCategory}
-                        </p>
-                        {hasMultiplePosts && (
-                          <span className="text-[9px] font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                            Scroll / Swipe
+                  <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-30">
+                    {hasRealItem ? (
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-white/92 dark:bg-stone-900/92 backdrop-blur-md border border-white/50 dark:border-stone-800 shadow-xl">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                            {displayCategory}
+                          </p>
+                          {hasMultiplePosts && (
+                            <span className="text-[9px] font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                              Scroll / Swipe
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate mb-2">
+                          {displayTitle}
+                        </h3>
+
+                        <div className="flex items-center justify-between pt-1 border-t border-stone-100 dark:border-stone-800/80">
+                          <span className="text-[9px] sm:text-[10px] font-semibold text-stone-500 dark:text-stone-400">
+                            {hasEligiblePosts
+                              ? "Verified Stylist Look"
+                              : featuredProduct?.price
+                              ? `₹${Number(featuredProduct.price).toLocaleString("en-IN")}`
+                              : featuredProduct?.store || "Verified Partner"}
                           </span>
-                        )}
+
+                          {/* Semantic Link: Real /post/:id if real post exists, or /product/:id if real product exists */}
+                          {hasEligiblePosts && currentPost?.id ? (
+                            <a
+                              href={`/post/${currentPost.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleNavigate(`/post/${currentPost.id}`);
+                              }}
+                              className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
+                            >
+                              <span>Explore Post</span>
+                              <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
+                            </a>
+                          ) : featuredProduct?.id ? (
+                            <a
+                              href={`/product/${featuredProduct.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleNavigate(`/product/${featuredProduct.id}`);
+                              }}
+                              className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
+                            >
+                              <span>Explore Piece</span>
+                              <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
+                            </a>
+                          ) : null}
+                        </div>
                       </div>
-
-                      <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate mb-2">
-                        {displayTitle}
-                      </h3>
-
-                      <div className="flex items-center justify-between pt-1 border-t border-stone-100 dark:border-stone-800/80">
-                        <span className="text-[9px] sm:text-[10px] font-semibold text-stone-500 dark:text-stone-400">
-                          Curated Indian Fashion
-                        </span>
-
-                        {/* Semantic Link: Real /post/:id if real post exists, or explore collection if showcase */}
-                        {hasEligiblePosts && currentPost?.id ? (
-                          <a
-                            href={`/post/${currentPost.id}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleNavigate(`/post/${currentPost.id}`);
-                            }}
-                            className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
-                          >
-                            <span>Explore Post</span>
-                            <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
-                          </a>
-                        ) : featuredProduct?.id ? (
-                          <a
-                            href={`/product/${featuredProduct.id}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleNavigate(`/product/${featuredProduct.id}`);
-                            }}
-                            className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
-                          >
-                            <span>Explore Piece</span>
-                            <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
-                          </a>
-                        ) : (
-                          <a
-                            href="#collections-grid"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              document.getElementById("collections-grid")?.scrollIntoView({ behavior: "smooth" });
-                            }}
-                            className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 group/btn"
-                          >
-                            <span>View Collection</span>
-                            <ArrowRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
-                          </a>
-                        )}
+                    ) : (
+                      /* Clean neutral editorial loading placeholder — NO fake product data */
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border border-white/50 dark:border-stone-800 shadow-xl animate-pulse">
+                        <div className="w-20 h-2.5 bg-stone-200 dark:bg-stone-800 rounded-full mb-2" />
+                        <div className="w-3/4 h-3.5 bg-stone-200 dark:bg-stone-800 rounded-full mb-3" />
+                        <div className="flex items-center justify-between pt-1 border-t border-stone-100 dark:border-stone-800/80">
+                          <div className="w-16 h-2.5 bg-stone-200 dark:bg-stone-800 rounded-full" />
+                          <div className="w-20 h-2.5 bg-stone-200 dark:bg-stone-800 rounded-full" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                 </div>
